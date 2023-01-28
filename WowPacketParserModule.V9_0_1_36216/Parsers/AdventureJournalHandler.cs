@@ -18,6 +18,12 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
             packet.ReadInt32("Priority", indexes);
         }
 
+        [Parser(Opcode.CMSG_ADVENTURE_JOURNAL_OPEN_QUEST)]
+        public static void HandleAdventureJournalOpenQuest(Packet packet)
+        {
+            packet.ReadInt32("AdventureJournalID");
+        }
+
         [Parser(Opcode.SMSG_ADVENTURE_JOURNAL_DATA_RESPONSE)]
         public static void HandleAdventureJournalDataResponse(Packet packet)
         {

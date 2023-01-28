@@ -68,16 +68,33 @@ namespace WowPacketParserModule.V6_0_2_19033.Parsers
         {
             packet.ReadInt32("ActivityID", idx);
             packet.ReadSingle("RequiredItemLevel", idx);
+            packet.ReadBit("AutoAccept", idx);
+            packet.ReadSingle("TypeActivity", idx); //Norm/Heroic/Mytic/Challenge
 
             packet.ResetBitReader();
-
+            var hasQuest = false;
             var lenName = packet.ReadBits(8);
-            var lenComment = packet.ReadBits(11);
-            var lenVoiceChat = packet.ReadBits(8);
+            var lenComment = packet.ReadBits(12);
+            var lenVoiceChat = packet.ReadBits(6);
+            var minChallenge = false; //@todo
+
+            minChallenge = packet.ReadBit("MinMyticPlusRating", idx); //@todo
+
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V9_0_5_37503))
+            {
+                packet.ReadBit("IsPrivate", idx);
+                hasQuest = packet.ReadBit("HasQuest", idx);
+            }
+
+            if (hasQuest)
+                packet.ReadUInt32("QuestID", idx);
 
             packet.ReadWoWString("Name", lenName, idx);
             packet.ReadWoWString("Comment", lenComment, idx);
             packet.ReadWoWString("VoiceChat", lenVoiceChat, idx);
+
+            if (minChallenge)
+                packet.ReadUInt32("MinMyticPlusRating", idx); //@todo
         }
 
         public static void ReadLfgPlayerQuestReward(Packet packet, params object[] idx)
@@ -432,17 +449,18 @@ namespace WowPacketParserModule.V6_0_2_19033.Parsers
                 ReadLFGListBlacklistEntry(packet, i, "ListBlacklistEntry");
         }
 
+
         [Parser(Opcode.SMSG_LFG_LIST_UPDATE_STATUS)]
-        public static void HandleLFGListUpdateStatus(Packet packet)
+        public static void HandleLfgListUpdateStatus(Packet packet)
         {
-            ReadCliRideTicket(packet, "RideTicket");
-            ReadLFGListJoinRequest(packet, "LFGListJoinRequest");
-            packet.ReadInt32("Unk");
-            packet.ReadByte("Reason");
-
+            V6_0_2_19033.Parsers.LfgHandler.ReadCliRideTicket(packet, "RideTicket");
+            packet.ReadTime("RemainingTime");
+            packet.ReadByte("ResultId");
+            packet.ReadInt32("UNK1");
+            packet.ReadBit("UNK2");
             packet.ResetBitReader();
-
             packet.ReadBit("Listed");
+            ReadLFGListJoinRequest(packet, "LFGListJoin");
         }
 
         [Parser(Opcode.SMSG_LFG_TELEPORT_DENIED)]
