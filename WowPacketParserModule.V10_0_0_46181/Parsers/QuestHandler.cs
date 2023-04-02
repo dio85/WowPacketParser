@@ -1,4 +1,5 @@
 ﻿
+using Org.BouncyCastle.Crypto.Operators;
 using WowPacketParser.Enums;
 using WowPacketParser.Misc;
 using WowPacketParser.Parsing;
@@ -15,6 +16,8 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
         {
             packet.ReadInt32("PlayerConditionID", indexes);
             packet.ReadInt32("QuestGiverCreatureID", indexes);
+
+            packet.ResetBitReader();
             var textLength = packet.ReadBits(12);
             packet.ReadWoWString("Text", textLength, indexes);
         }
@@ -265,6 +268,16 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             packet.ReadWoWString("PortraitTurnInName", portraitTurnInNameLen);
 
             Storage.QuestOfferRewards.Add(questOfferReward, packet.TimeSpan);
+        }
+
+        [Parser(Opcode.CMSG_QUEST_GIVER_STATUS_TRACKED_QUERY)]
+        public static void HandleQuestGiverStatusTrackedQuery(Packet packet)
+        {
+            var guidCount = packet.ReadUInt32("GUIDCount");
+            for (var i = 0; i< guidCount; i++)
+            {
+                packet.ReadPackedGuid128("QuestGiverGUID", i);
+            }
         }
     }
 }
