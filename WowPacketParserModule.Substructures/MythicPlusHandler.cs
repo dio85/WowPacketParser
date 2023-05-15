@@ -1,5 +1,7 @@
-﻿using WowPacketParser.Enums;
+﻿using System;
+using WowPacketParser.Enums;
 using WowPacketParser.Misc;
+using WowPacketParser.Parsing;
 
 namespace WowPacketParserModule.Substructures
 {
@@ -131,6 +133,52 @@ namespace WowPacketParserModule.Substructures
             packet.ReadInt32("TotalRuns", indexes);
             for (var i = 0u; i < seasonCount; ++i)
                 ReadDungeonScoreSeasonData(packet, indexes, i, "Season");
+        }
+
+        [Parser(Opcode.CMSG_MYTHIC_PLUS_REQUEST_MAP_STATS)]
+        public static void HandleMythicPlusRequestMapStats(Packet packet)
+        {
+            packet.ReadPackedGuid128("BnetAccountGUID");
+            packet.ReadInt64("MapChallengeModeID");
+
+        }
+
+        [Parser(Opcode.SMSG_CHALLENGE_MODE_START)]
+        public static void HandleChallengeModeStart(Packet packet)
+        {
+            packet.ReadInt32("MapID");
+            packet.ReadInt32("ChallengeID");
+            packet.ReadInt32("ChallengeLevel");
+
+            for (int i = 0; i < 4; i++)
+                packet.ReadInt32("Affixes", i);
+
+            packet.ReadInt32("DeathCount");
+            var count = packet.ReadInt32("ClientEncounterStartPlayerInfo");
+
+            packet.ResetBitReader();
+            packet.ReadBit("Energized");
+
+            //for (int i = 0; i < count; i++)
+            //   ReadUnkStruct1(packet, "ReadUnkStruct1", i); need make the unk struct
+        }
+
+
+        [Parser(Opcode.SMSG_MYTHIC_PLUS_ALL_MAP_STATS)]
+
+        public static void HandleMythicPlusAllMapStats(Packet packet)
+        {
+            var runCount =packet.ReadInt32("RunCount");
+            var runCount2 = 0u;
+            var rewardCount = packet.ReadInt32("RewardCount");
+            packet.ReadInt32("Season");
+            packet.ReadInt32("SubSeason");
+
+            for (var i = 0u; i < runCount; i++)
+                ReadDungeonScoreSeasonData(packet, i, "Map");
+
+            for (var i = 0u; i < rewardCount; i++)
+                packet.ReadInt32("RewardCount");
         }
     }
 }

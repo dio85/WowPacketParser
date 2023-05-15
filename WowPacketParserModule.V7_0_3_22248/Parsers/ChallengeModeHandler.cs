@@ -34,10 +34,10 @@ namespace WowPacketParserModule.V7_0_3_22248.Parsers
         [Parser(Opcode.CMSG_CHALLENGE_MODE_REQUEST_LEADERS)]
         public static void HandleChallengeModeRequestLeaders(Packet packet)
         {
+            packet.ReadTime64("LastGuildUpdate");
+            packet.ReadTime64("LastRealmUpdate");
             packet.ReadInt32("MapId");
-            packet.ReadTime("LastGuildUpdate");
-            packet.ReadTime("LastRealmUpdate");
-            packet.ReadInt32("Unk");
+            packet.ReadInt32("ChallengeID");
         }
 
         [Parser(Opcode.SMSG_MYTHIC_PLUS_NEW_WEEK_RECORD)]
