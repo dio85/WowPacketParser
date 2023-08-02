@@ -49,11 +49,14 @@ namespace WowPacketParser.SQL.Builders
                 var commentAuras = string.Empty;
                 if (npc.Auras != null && npc.Auras.Count != 0)
                 {
-                    foreach (var aura in npc.Auras.Where(aura =>
+                    var auraList = npc.Auras.Where(aura =>
                         aura != null &&
                         (ClientVersion.AddedInVersion(ClientType.MistsOfPandaria) ?
                             aura.AuraFlags.HasAnyFlag(AuraFlagMoP.NoCaster) :
-                            aura.AuraFlags.HasAnyFlag(AuraFlag.NotCaster))))
+                            aura.AuraFlags.HasAnyFlag(AuraFlag.NotCaster)) &&
+                        aura.Duration <= 0);
+
+                    foreach (var aura in auraList)
                     {
                         auras += aura.SpellId + " ";
                         commentAuras += StoreGetters.GetName(StoreNameType.Spell, (int) aura.SpellId, false) + ", ";
@@ -128,14 +131,14 @@ namespace WowPacketParser.SQL.Builders
             if (units.Count == 0)
                 return string.Empty;
 
-            if (!Settings.SQLOutputFlag.HasAnyFlagBit(SQLOutput.creature_template_scaling))
+            if (!Settings.SQLOutputFlag.HasAnyFlagBit(SQLOutput.creature_template_difficulty))
                 return string.Empty;
 
             var scalingdeltalevels = GetScalingDeltaLevels(units);
 
             foreach (var unit in units)
             {
-                if (Storage.CreatureTemplateScalings.Any(creature => creature.Item1.Entry == unit.Key.GetEntry()))
+                if (Storage.CreatureTemplateDifficulties.Any(creature => creature.Item1.Entry == unit.Key.GetEntry()))
                     continue;
 
                 var npc = unit.Value;
@@ -146,7 +149,7 @@ namespace WowPacketParser.SQL.Builders
 
                 if (minLevel != 0 || maxLevel != 0 || contentTuningID != 0)
                 {
-                    Storage.CreatureTemplateScalings.Add(new CreatureTemplateScaling
+                    CreatureTemplateDifficulty creatureDifficulty = new CreatureTemplateDifficulty
                     {
                         Entry = unit.Key.GetEntry(),
                         DifficultyID = npc.DifficultyID,
@@ -155,13 +158,26 @@ namespace WowPacketParser.SQL.Builders
                         LevelScalingDeltaMin = scalingdeltalevels[unit.Key.GetEntry()].Item1,
                         LevelScalingDeltaMax = scalingdeltalevels[unit.Key.GetEntry()].Item2,
                         ContentTuningID = contentTuningID
-                    });
+                    };
+
+                    CreatureTemplate template;
+                    if (Storage.CreatureTemplates.TryGetValue(unit.Key.GetEntry(), out template))
+                    {
+                        creatureDifficulty.HealthScalingExpansion = template.HealthScalingExpansion;
+                        creatureDifficulty.HealthModifier = template.HealthModifier;
+                        creatureDifficulty.ManaModifier = template.ManaModifier;
+                        creatureDifficulty.CreatureDifficultyID = template.CreatureDifficultyID;
+                        creatureDifficulty.TypeFlags = template.TypeFlags;
+                        creatureDifficulty.TypeFlags2 = template.TypeFlags2;
+                    }
+
+                    Storage.CreatureTemplateDifficulties.Add(creatureDifficulty);
                 }
             }
 
-            var templatesDb = SQLDatabase.Get(Storage.CreatureTemplateScalings);
+            var templatesDb = SQLDatabase.Get(Storage.CreatureTemplateDifficulties);
 
-            return SQLUtil.Compare(Settings.SQLOrderByKey ? Storage.CreatureTemplateScalings.OrderBy(x => x.Item1.Entry).ToArray() : Storage.CreatureTemplateScalings.ToArray(), templatesDb, x => string.Empty);
+            return SQLUtil.Compare(Settings.SQLOrderByKey ? Storage.CreatureTemplateDifficulties.OrderBy(x => x.Item1.Entry).ToArray() : Storage.CreatureTemplateDifficulties.ToArray(), templatesDb, StoreNameType.Unit);
         }
 
         [BuilderMethod(Units = true)]
@@ -630,7 +646,7 @@ namespace WowPacketParser.SQL.Builders
             var levels = GetLevels(units);
             var usesCurrentExpansionLevels = new Dictionary<uint, long>();
             var expansionBaseLevel = 0;
-            if (Settings.TargetedDatabase >= TargetedDatabase.WarlordsOfDraenor && Settings.DBEnabled)
+            if (Settings.TargetedDatabase >= TargetedDatabase.WarlordsOfDraenor && Settings.TargetedDatabase != TargetedDatabase.Dragonflight && Settings.DBEnabled)
             {
                 usesCurrentExpansionLevels = SQLDatabase.GetDict<uint, long>($"SELECT entry, 1 FROM {Settings.TDBDatabase}.creature_template WHERE HealthScalingExpansion = -1");
                 switch (Settings.TargetedDatabase)
