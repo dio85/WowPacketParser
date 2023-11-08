@@ -64,11 +64,16 @@ namespace WowPacketParserModule.V6_0_2_19033.Parsers
         }
 
         [Parser(Opcode.CMSG_CHALLENGE_MODE_REQUEST_MAP_STATS)]
-        [Parser(Opcode.CMSG_MYTHIC_PLUS_REQUEST_MAP_STATS)]
         [Parser(Opcode.CMSG_GET_CHALLENGE_MODE_REWARDS)]
         [Parser(Opcode.CMSG_MYTHIC_PLUS_WEEKLY_REWARD_REQUEST)]
         public static void HandleChallengeModeZero(Packet packet)
         {
+        }
+        [Parser(Opcode.CMSG_MYTHIC_PLUS_REQUEST_MAP_STATS)]
+        public static void HandleChallengeModeRequestAllMapStats(Packet packet)
+        {
+            packet.ReadPackedGuid128("BnetAccountGUID");
+            packet.ReadInt64("MapChallengeModeID");
         }
 
         [Parser(Opcode.CMSG_CHALLENGE_MODE_REQUEST_LEADERS)]

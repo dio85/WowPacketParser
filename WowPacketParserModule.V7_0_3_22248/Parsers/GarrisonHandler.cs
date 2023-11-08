@@ -294,6 +294,13 @@ namespace WowPacketParserModule.V7_0_3_22248.Parsers
         {
             packet.ReadPackedGuid128("NpcGuid");
             packet.ReadInt32E<GarrisonFollowerType>("FollowerType"); // Indicates which type of missions
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V7_3_0_24920))
+            {
+                packet.ReadInt32E<GarrisonMissionResult>("Result");
+                ReadGarrisonMission(packet, "Mission");
+                packet.ReadBit("UnkBit1");
+                packet.ReadBit("PreventXmlOpenMissionEvent");
+            }    
         }
 
         [Parser(Opcode.SMSG_GET_LANDING_PAGE_SHIPMENTS_RESPONSE)]

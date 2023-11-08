@@ -30,6 +30,11 @@ namespace WowPacketParserModule.V7_0_3_22248.Parsers
 
             if (hasQuest)
                 packet.ReadUInt32("QuestID", idx);
+
+            if(ClientVersion.AddedInVersion(ClientVersionBuild.V8_0_1_27101)) 
+            {
+                packet.ReadUInt32("MinMyticPlusRating");
+            }
         }
 
         public static void ReadLfgListSearchResultMemberInfo(Packet packet, params object[] idx)
@@ -60,7 +65,7 @@ namespace WowPacketParserModule.V7_0_3_22248.Parsers
 
             packet.ReadUInt32("CompletedEncountersMask", idx);
             packet.ReadTime("CreationTime", idx);
-            packet.ReadByte("Unk4", idx);
+            packet.ReadByte("ApplicationStatus", idx);
 
             if (ClientVersion.AddedInVersion(ClientVersionBuild.V7_3_5_25848))
                 packet.ReadPackedGuid128("PartyGUID", idx);
