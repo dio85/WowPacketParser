@@ -504,6 +504,8 @@ namespace WowPacketParser.Misc
             new KeyValuePair<ClientVersionBuild, DateTime>(ClientVersionBuild.V10_2_0_52095, new DateTime(2023, 11, 08)),
             new KeyValuePair<ClientVersionBuild, DateTime>(ClientVersionBuild.V10_2_0_52106, new DateTime(2023, 11, 09)),
             new KeyValuePair<ClientVersionBuild, DateTime>(ClientVersionBuild.V10_2_0_52129, new DateTime(2023, 11, 14)),
+            new KeyValuePair<ClientVersionBuild, DateTime>(ClientVersionBuild.V10_2_0_52148, new DateTime(2023, 11, 15)),
+            new KeyValuePair<ClientVersionBuild, DateTime>(ClientVersionBuild.V10_2_0_52188, new DateTime(2023, 11, 16)),
 
             // no classic info, pkt contain build in header
         };
@@ -1004,6 +1006,8 @@ namespace WowPacketParser.Misc
                 case ClientVersionBuild.V10_2_0_52095:
                 case ClientVersionBuild.V10_2_0_52106:
                 case ClientVersionBuild.V10_2_0_52129:
+                case ClientVersionBuild.V10_2_0_52148:
+                case ClientVersionBuild.V10_2_0_52188:
                     return ClientVersionBuild.V10_0_0_46181;
                 //Classic
                 case ClientVersionBuild.V1_13_2_31446:
@@ -1178,6 +1182,7 @@ namespace WowPacketParser.Misc
                 case ClientVersionBuild.V3_4_1_49345:
                 case ClientVersionBuild.V3_4_1_49822:
                 case ClientVersionBuild.V3_4_1_49936:
+                case ClientVersionBuild.V3_4_2_50063:
                 case ClientVersionBuild.V3_4_2_50129:
                 case ClientVersionBuild.V3_4_2_50172:
                 case ClientVersionBuild.V3_4_2_50250:
@@ -1613,6 +1618,7 @@ namespace WowPacketParser.Misc
                 case ClientVersionBuild.V3_4_1_49345:
                 case ClientVersionBuild.V3_4_1_49822:
                 case ClientVersionBuild.V3_4_1_49936:
+                case ClientVersionBuild.V3_4_2_50063:
                 case ClientVersionBuild.V3_4_2_50129:
                 case ClientVersionBuild.V3_4_2_50172:
                 case ClientVersionBuild.V3_4_2_50250:
