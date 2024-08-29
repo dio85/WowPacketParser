@@ -5,13 +5,13 @@ on:
   pull_request:
 
 env:
-  DOTNET_VERSION: '7.0.x'
+  DOTNET_VERSION: '8.0.x'
 
 jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest, macos-14]
         configuration: [Debug, Release]
 
     runs-on: ${{ matrix.os }}

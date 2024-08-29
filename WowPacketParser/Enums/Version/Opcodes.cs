@@ -5,6 +5,8 @@ using WowPacketParser.Enums.Version.V1_13_4_33598;
 using WowPacketParser.Enums.Version.v1_13_5_34713;
 using WowPacketParser.Enums.Version.V1_13_6_36231;
 using WowPacketParser.Enums.Version.V1_14_1_40688;
+using WowPacketParser.Enums.Version.V1_14_4_51146;
+using WowPacketParser.Enums.Version.V1_15_0_52302;
 using WowPacketParser.Enums.Version.V2_4_3_8606;
 using WowPacketParser.Enums.Version.V2_5_1_38835;
 using WowPacketParser.Enums.Version.V2_5_2_39570;
@@ -24,6 +26,7 @@ using WowPacketParser.Enums.Version.V4_3_0_15005;
 using WowPacketParser.Enums.Version.V4_3_2_15211;
 using WowPacketParser.Enums.Version.V4_3_3_15354;
 using WowPacketParser.Enums.Version.V4_3_4_15595;
+using WowPacketParser.Enums.Version.V4_4_0_54481;
 using WowPacketParser.Enums.Version.V5_0_4_16016;
 using WowPacketParser.Enums.Version.V5_0_5_16048;
 using WowPacketParser.Enums.Version.V5_1_0_16309;
@@ -72,6 +75,10 @@ using WowPacketParser.Enums.Version.V10_1_0_49318;
 using WowPacketParser.Enums.Version.V10_1_5_50232;
 using WowPacketParser.Enums.Version.V10_1_7_51187;
 using WowPacketParser.Enums.Version.V10_2_0_52038;
+using WowPacketParser.Enums.Version.V10_2_6_53840;
+using WowPacketParser.Enums.Version.V10_2_7_54577;
+using WowPacketParser.Enums.Version.V11_0_0_55666;
+using WowPacketParser.Enums.Version.V11_0_2_55959;
 using WowPacketParser.Misc;
 
 namespace WowPacketParser.Enums.Version
@@ -655,7 +662,66 @@ namespace WowPacketParser.Enums.Version
                 case ClientVersionBuild.V10_2_0_52393:
                 case ClientVersionBuild.V10_2_0_52485:
                 case ClientVersionBuild.V10_2_0_52545:
+                case ClientVersionBuild.V10_2_0_52607:
+                case ClientVersionBuild.V10_2_0_52649:
+                case ClientVersionBuild.V10_2_0_52808:
+                case ClientVersionBuild.V10_2_5_52902:
+                case ClientVersionBuild.V10_2_5_52968:
+                case ClientVersionBuild.V10_2_5_52983:
+                case ClientVersionBuild.V10_2_5_53007:
+                case ClientVersionBuild.V10_2_5_53040:
+                case ClientVersionBuild.V10_2_5_53104:
+                case ClientVersionBuild.V10_2_5_53162:
+                case ClientVersionBuild.V10_2_5_53212:
+                case ClientVersionBuild.V10_2_5_53262:
+                case ClientVersionBuild.V10_2_5_53441:
+                case ClientVersionBuild.V10_2_5_53584:
                     return ClientVersionBuild.V10_2_0_52038;
+                case ClientVersionBuild.V10_2_6_53840:
+                case ClientVersionBuild.V10_2_6_53877:
+                case ClientVersionBuild.V10_2_6_53913:
+                case ClientVersionBuild.V10_2_6_53989:
+                case ClientVersionBuild.V10_2_6_54070:
+                case ClientVersionBuild.V10_2_6_54205:
+                case ClientVersionBuild.V10_2_6_54358:
+                case ClientVersionBuild.V10_2_6_54499:
+                    return ClientVersionBuild.V10_2_6_53840;
+                case ClientVersionBuild.V10_2_7_54577:
+                case ClientVersionBuild.V10_2_7_54601:
+                case ClientVersionBuild.V10_2_7_54604:
+                case ClientVersionBuild.V10_2_7_54630:
+                case ClientVersionBuild.V10_2_7_54673:
+                case ClientVersionBuild.V10_2_7_54717:
+                case ClientVersionBuild.V10_2_7_54736:
+                case ClientVersionBuild.V10_2_7_54762:
+                case ClientVersionBuild.V10_2_7_54847:
+                case ClientVersionBuild.V10_2_7_54904:
+                case ClientVersionBuild.V10_2_7_54988:
+                case ClientVersionBuild.V10_2_7_55142:
+                case ClientVersionBuild.V10_2_7_55165:
+                case ClientVersionBuild.V10_2_7_55261:
+                case ClientVersionBuild.V10_2_7_55461:
+                case ClientVersionBuild.V10_2_7_55664:
+                    return ClientVersionBuild.V10_2_7_54577;
+                case ClientVersionBuild.V11_0_0_55666:
+                case ClientVersionBuild.V11_0_0_55793:
+                case ClientVersionBuild.V11_0_0_55818:
+                case ClientVersionBuild.V11_0_0_55824:
+                case ClientVersionBuild.V11_0_0_55846:
+                case ClientVersionBuild.V11_0_0_55933:
+                case ClientVersionBuild.V11_0_0_55939:
+                case ClientVersionBuild.V11_0_0_55960:
+                case ClientVersionBuild.V11_0_0_56008:
+                    return ClientVersionBuild.V11_0_0_55666;
+                case ClientVersionBuild.V11_0_2_55959:
+                case ClientVersionBuild.V11_0_2_56110:
+                case ClientVersionBuild.V11_0_2_56162:
+                case ClientVersionBuild.V11_0_2_56196:
+                case ClientVersionBuild.V11_0_2_56263:
+                case ClientVersionBuild.V11_0_2_56288:
+                case ClientVersionBuild.V11_0_2_56311:
+                case ClientVersionBuild.V11_0_2_56313:
+                    return ClientVersionBuild.V11_0_2_55959;
                 case ClientVersionBuild.V1_13_2_31446:
                 case ClientVersionBuild.V1_13_2_31650:
                 case ClientVersionBuild.V1_13_2_31687:
@@ -844,6 +910,9 @@ namespace WowPacketParser.Enums.Version
                 case ClientVersionBuild.V3_4_2_50375:
                 case ClientVersionBuild.V3_4_2_50664:
                     return ClientVersionBuild.V3_4_2_50129;
+                case ClientVersionBuild.V1_14_4_51146: // inherits from above
+                case ClientVersionBuild.V1_14_4_51535:
+                    return ClientVersionBuild.V1_14_4_51146;
                 case ClientVersionBuild.V3_4_3_51505:
                 case ClientVersionBuild.V3_4_3_51572:
                 case ClientVersionBuild.V3_4_3_51666:
@@ -851,7 +920,34 @@ namespace WowPacketParser.Enums.Version
                 case ClientVersionBuild.V3_4_3_51831:
                 case ClientVersionBuild.V3_4_3_51943:
                 case ClientVersionBuild.V3_4_3_52237:
+                case ClientVersionBuild.V3_4_3_53622:
+                case ClientVersionBuild.V3_4_3_53788:
+                case ClientVersionBuild.V3_4_3_54261:
                     return ClientVersionBuild.V3_4_3_51666;
+                case ClientVersionBuild.V1_15_0_52302: // inherits from above
+                case ClientVersionBuild.V1_15_0_52610:
+                case ClientVersionBuild.V1_15_1_53247:
+                case ClientVersionBuild.V1_15_1_53495:
+                case ClientVersionBuild.V1_15_2_54262:
+                    return ClientVersionBuild.V1_15_0_52302;
+                case ClientVersionBuild.V4_4_0_54481:
+                case ClientVersionBuild.V4_4_0_54500:
+                case ClientVersionBuild.V4_4_0_54501:
+                case ClientVersionBuild.V4_4_0_54525:
+                case ClientVersionBuild.V4_4_0_54558:
+                case ClientVersionBuild.V4_4_0_54647:
+                case ClientVersionBuild.V4_4_0_54670:
+                case ClientVersionBuild.V4_4_0_54737:
+                case ClientVersionBuild.V4_4_0_54851:
+                case ClientVersionBuild.V4_4_0_54901:
+                case ClientVersionBuild.V4_4_0_55006:
+                case ClientVersionBuild.V4_4_0_55056:
+                case ClientVersionBuild.V4_4_0_55141:
+                case ClientVersionBuild.V4_4_0_55262:
+                case ClientVersionBuild.V4_4_0_55460:
+                case ClientVersionBuild.V4_4_0_55639:
+                case ClientVersionBuild.V4_4_0_56014:
+                    return ClientVersionBuild.V4_4_0_54481;
                 default:
                     return ClientVersionBuild.V3_3_5a_12340;
             }
@@ -969,9 +1065,6 @@ namespace WowPacketParser.Enums.Version
                 case ClientVersionBuild.V9_2_0_42423:
                     return Opcodes_9_2_0.Opcodes(direction);
                 case ClientVersionBuild.V9_2_5_43903:
-                case ClientVersionBuild.V9_2_7_45114:
-                case ClientVersionBuild.V9_2_7_45161:
-                case ClientVersionBuild.V9_2_7_45338:
                     return Opcodes_9_2_5.Opcodes(direction);
                 case ClientVersionBuild.V10_0_0_46181:
                     return Opcodes_10_0_0.Opcodes(direction);
@@ -989,6 +1082,14 @@ namespace WowPacketParser.Enums.Version
                     return Opcodes_10_1_7.Opcodes(direction);
                 case ClientVersionBuild.V10_2_0_52038:
                     return Opcodes_10_2_0.Opcodes(direction);
+                case ClientVersionBuild.V10_2_6_53840:
+                    return Opcodes_10_2_6.Opcodes(direction);
+                case ClientVersionBuild.V10_2_7_54577:
+                    return Opcodes_10_2_7.Opcodes(direction);
+                case ClientVersionBuild.V11_0_0_55666:
+                    return Opcodes_11_0_0.Opcodes(direction);
+                case ClientVersionBuild.V11_0_2_55959:
+                    return Opcodes_11_0_2.Opcodes(direction);
 
                 case ClientVersionBuild.V1_13_2_31446:
                     return Opcodes_1_13_2.Opcodes(direction);
@@ -1000,6 +1101,10 @@ namespace WowPacketParser.Enums.Version
                     return Opcodes_1_13_6.Opcodes(direction);
                 case ClientVersionBuild.V1_14_1_40688:
                     return Opcodes_1_14_1.Opcodes(direction);
+                case ClientVersionBuild.V1_14_4_51146:
+                    return Opcodes_1_14_4.Opcodes(direction);
+                case ClientVersionBuild.V1_15_0_52302:
+                    return Opcodes_1_15_0.Opcodes(direction);
                 case ClientVersionBuild.V2_5_1_38835:
                     return Opcodes_2_5_1.Opcodes(direction);
                 case ClientVersionBuild.V2_5_2_39570:
@@ -1016,6 +1121,8 @@ namespace WowPacketParser.Enums.Version
                     return Opcodes_3_4_2.Opcodes(direction);
                 case ClientVersionBuild.V3_4_3_51666:
                     return Opcodes_3_4_3.Opcodes(direction);
+                case ClientVersionBuild.V4_4_0_54481:
+                    return Opcodes_4_4_0.Opcodes(direction);
                 default:
                     return Opcodes_3_3_5.Opcodes(direction);
             }

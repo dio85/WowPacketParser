@@ -4,6 +4,7 @@ using WowPacketParser.Misc;
 using WowPacketParser.PacketStructures;
 using WowPacketParser.Parsing;
 using WowPacketParser.Proto;
+using WowPacketParser.SQL.Builders;
 using WowPacketParser.Store;
 using WowPacketParser.Store.Objects;
 using SpellCastFailureReason = WowPacketParser.Enums.Version.V6_1_0_19678.SpellCastFailureReason;
@@ -51,11 +52,11 @@ namespace WowPacketParserModule.V6_0_2_19033.Parsers
             packet.ReadPackedGuid128("Item", idx);
 
             if (hasSrcLoc)
-                ReadLocation(packet, "SrcLocation");
+                ReadLocation(packet, idx, "SrcLocation");
 
             if (hasDstLoc)
             {
-                var dstLocation = ReadLocation(packet, "DstLocation");
+                var dstLocation = ReadLocation(packet, idx, "DstLocation");
                 if (spellData != null)
                     spellData.DstLocation = dstLocation;
             }
@@ -783,13 +784,13 @@ namespace WowPacketParserModule.V6_0_2_19033.Parsers
         [Parser(Opcode.SMSG_LOSS_OF_CONTROL_AURA_UPDATE)]
         public static void HandleLossOfControlAuraUpdate(Packet packet)
         {
-            var count = packet.ReadInt32("LossOfControlInfoCount");
+            var count = packet.ReadInt32();
             for (int i = 0; i < count; i++)
             {
                 packet.ReadByte("AuraSlot", i);
                 packet.ReadByte("EffectIndex", i);
-                packet.ReadBits("Type", 8, i);
-                packet.ReadBits("Mechanic", 8, i);
+                packet.ReadBitsE<LossOfControlType>("LocType", 8, i);
+                packet.ReadBitsE<SpellMechanic>("Mechanic", 8, i);
             }
         }
 
@@ -854,14 +855,15 @@ namespace WowPacketParserModule.V6_0_2_19033.Parsers
         [Parser(Opcode.SMSG_SPELL_COOLDOWN)]
         public static void HandleSpellCooldown(Packet packet)
         {
-            packet.ReadPackedGuid128("Caster");
+            var guid = packet.ReadPackedGuid128("Caster");
             packet.ReadByte("Flags");
 
             var count = packet.ReadInt32("SpellCooldownsCount");
             for (int i = 0; i < count; i++)
             {
-                packet.ReadInt32("SrecID", i);
-                packet.ReadInt32("ForcedCooldown", i);
+                var spellId = packet.ReadInt32("SrecID", i);
+                var time = packet.ReadInt32("ForcedCooldown", i);
+                WowPacketParser.Parsing.Parsers.SpellHandler.FillSpellListCooldown((uint)spellId, time, guid.GetEntry());
             }
         }
 

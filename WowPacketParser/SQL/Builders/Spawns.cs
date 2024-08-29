@@ -16,6 +16,11 @@ namespace WowPacketParser.SQL.Builders
     [BuilderClass]
     public static class Spawns
     {
+        public static bool FloatComparison(float x, float y, float precision)
+        {
+            return Math.Abs(x - y) < precision;
+        }
+
         private static bool GetTransportMap(WoWObject @object, out int mapId)
         {
             mapId = -1;
@@ -30,7 +35,7 @@ namespace WowPacketParser.SQL.Builders
             if (transport.Type != ObjectType.GameObject)
                 return false;
 
-            if (SQLConnector.Enabled)
+            if (SQLConnector.Enabled && Settings.TargetedDatabase != TargetedDatabase.TheBurningCrusade)
             {
                 var transportTemplates = SQLDatabase.Get(new RowList<GameObjectTemplate> { new GameObjectTemplate { Entry = (uint)transport.ObjectData.EntryID } });
                 if (transportTemplates.Count == 0)
@@ -62,6 +67,25 @@ namespace WowPacketParser.SQL.Builders
             var unitList = Settings.SkipDuplicateSpawns
                 ? units.Values.GroupBy(u => u, new SpawnComparer()).Select(x => x.First())
                 : units.Values.ToList();
+
+
+            if (!Settings.SaveExistingSpawns && SQLConnector.Enabled)
+            {
+                var spawnsDb = SQLDatabase.GetCreatures(new RowList<CreatureDB>());
+                var precision = 0.02f; // warning - some zones shifted by 0.2 in some cases between later expansions
+                foreach (var creature in unitList)
+                {
+                    var existingCreature = spawnsDb.Where(p => p.Data.ID == (uint)creature.ObjectData.EntryID
+                        && p.Data.Map == creature.Map
+                        && FloatComparison((float)p.Data.PosX, creature.Movement.Position.X, precision)
+                        && FloatComparison((float)p.Data.PosY, creature.Movement.Position.Y, precision)
+                        && FloatComparison((float)p.Data.PosZ, creature.Movement.Position.Z, precision)
+                        && FloatComparison((float)p.Data.Orientation, creature.Movement.Orientation, precision)).FirstOrDefault();
+
+                    if (existingCreature != null)
+                        creature.ExistingDatabaseSpawn = true;
+                }
+            }
 
             foreach (var creature in unitList)
             {
@@ -179,12 +203,16 @@ namespace WowPacketParser.SQL.Builders
                 row.Data.ModelID = 0;
                 row.Data.CurrentWaypoint = 0;
                 row.Data.CurHealth = (uint)creature.UnitData.MaxHealth;
+                row.Data.CurHealthPct = 100;
                 row.Data.CurMana = (uint)creature.UnitData.MaxPower[0];
                 row.Data.NpcFlag = null;
                 row.Data.UnitFlags = null;
                 row.Data.UnitFlags2 = null;
                 row.Data.UnitFlags3 = null;
                 row.Data.DynamicFlag = 0;
+
+                if (creature.UnitData.Health > 1 && (creature.UnitData.Flags & (uint)UnitFlags.IsInCombat) == 0)
+                    row.Data.CurHealthPct = (uint)(creature.UnitData.Health / creature.UnitData.MaxHealth * 100);
 
                 row.Comment = StoreGetters.GetName(StoreNameType.Unit, (int)entry, false);
                 row.Comment += " (Area: " + StoreGetters.GetName(StoreNameType.Area, creature.Area, false) + " - ";
@@ -255,6 +283,16 @@ namespace WowPacketParser.SQL.Builders
                         addonRow.Comment += " - !!! might be temporary spawn !!!";
                     }
                 }
+                else if (creature.IsExistingSpawn() && !Settings.SaveExistingSpawns)
+                {
+                    row.CommentOut = true;
+                    row.Comment += " - !!! already present in database !!!";
+                    if (Settings.SQLOutputFlag.HasAnyFlagBit(SQLOutput.creature_addon))
+                    {
+                        addonRow.CommentOut = true;
+                        addonRow.Comment += " - !!! already present in database !!!";
+                    }
+                }
                 else if (creature.IsOnTransport() && badTransport)
                 {
                     row.CommentOut = true;
@@ -297,6 +335,14 @@ namespace WowPacketParser.SQL.Builders
             return result.ToString();
         }
 
+        private static float NormalizeOrientation(float originalOri)
+        {
+            if (originalOri > Math.PI) // later expansions used 0-2PI interval, whereas earlier used -PI-PI interval
+                return (float)(originalOri - 2 * Math.PI);
+
+            return originalOri;
+        }
+
         [BuilderMethod(Gameobjects = true)]
         public static string GameObject(Dictionary<WowGuid, GameObject> gameObjects)
         {
@@ -313,6 +359,30 @@ namespace WowPacketParser.SQL.Builders
             var gobList = Settings.SkipDuplicateSpawns
                 ? gameObjects.Values.GroupBy(g => g, new SpawnComparer()).Select(x => x.First())
                 : gameObjects.Values.ToList();
+
+            if (!Settings.SaveExistingSpawns && SQLConnector.Enabled)
+            {
+                var spawnsDb = SQLDatabase.GetGameObjects(new RowList<GameObjectDB>());
+                var precision = 0.02f; // warning - some zones shifted by 0.2 in some cases between later expansions
+                // TODO: Add loading of randomized entry ID from pools (TC) and random/spawn_group (TBC)
+                foreach (var go in gobList)
+                {
+                    var staticRot = go.GetStaticRotation();
+                    var existingGo = spawnsDb.Where(p => (p.Data.ID == 0 || p.Data.ID == (uint)go.ObjectData.EntryID) // 0 is used when spawn has randomized entry in cMaNGOS
+                        && p.Data.Map == go.Map
+                        && FloatComparison((float)p.Data.PosX, go.Movement.Position.X, precision)
+                        && FloatComparison((float)p.Data.PosY, go.Movement.Position.Y, precision)
+                        && FloatComparison((float)p.Data.PosZ, go.Movement.Position.Z, precision)
+                        && FloatComparison(NormalizeOrientation((float)p.Data.Orientation), NormalizeOrientation(go.Movement.Orientation), precision)
+                        && FloatComparison((float)p.Data.Rot0, staticRot.X, precision)
+                        && FloatComparison((float)p.Data.Rot1, staticRot.Y, precision)
+                        && (FloatComparison((float)p.Data.Rot2, staticRot.Z, precision) || FloatComparison((float)p.Data.Rot2, -staticRot.Z, precision))
+                        && (FloatComparison((float)p.Data.Rot3, staticRot.W, precision) || FloatComparison((float)p.Data.Rot3, -staticRot.W, precision))).FirstOrDefault();
+
+                    if (existingGo != null)
+                        go.ExistingDatabaseSpawn = true;
+                }
+            }
 
             foreach (var go in gobList)
             {
@@ -456,6 +526,16 @@ namespace WowPacketParser.SQL.Builders
                         addonRow.Comment += " - !!! might be temporary spawn !!!";
                     }
                 }
+                else if (go.IsExistingSpawn() && !Settings.SaveExistingSpawns)
+                {
+                    row.CommentOut = true;
+                    row.Comment += " - !!! already present in database !!!";
+                    if (Settings.SQLOutputFlag.HasAnyFlagBit(SQLOutput.gameobject_addon))
+                    {
+                        addonRow.CommentOut = true;
+                        addonRow.Comment += " - !!! already present in database !!!";
+                    }
+                }
                 else if (go.IsTransport())
                 {
                     row.CommentOut = true;
@@ -482,7 +562,7 @@ namespace WowPacketParser.SQL.Builders
             }
 
             if (count == 0)
-                return String.Empty;
+                return string.Empty;
 
             StringBuilder result = new StringBuilder();
             // delete query for GUIDs

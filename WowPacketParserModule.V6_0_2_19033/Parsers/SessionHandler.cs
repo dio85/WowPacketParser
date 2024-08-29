@@ -325,8 +325,13 @@ namespace WowPacketParserModule.V6_0_2_19033.Parsers
         [Parser(Opcode.CMSG_CONNECT_TO_FAILED)]
         public static void HandleRedirectFailed(Packet packet)
         {
-            packet.ReadUInt32("Serial");
+            if (ClientVersion.RemovedInVersion(ClientType.TheWarWithin))
+                packet.ReadUInt32("Serial");
+
             packet.ReadSByte("Con");
+
+            if (ClientVersion.AddedInVersion(ClientType.TheWarWithin))
+                packet.ReadUInt32("Serial");
         }
 
         [Parser(Opcode.CMSG_SUSPEND_TOKEN_RESPONSE)]
@@ -375,41 +380,6 @@ namespace WowPacketParserModule.V6_0_2_19033.Parsers
         {
             packet.ReadUInt32("Token");
             packet.ReadBit("Timeout");
-        }
-
-        public static void ReadMethodCall(Packet packet, params object[] idx)
-        {
-            packet.ReadUInt64("Type", idx);
-            packet.ReadUInt64("ObjectId", idx);
-            packet.ReadUInt32("Token", idx);
-        }
-
-        [Parser(Opcode.CMSG_BATTLENET_REQUEST)]
-        public static void HandleBattlenetRequest(Packet packet)
-        {
-            ReadMethodCall(packet, "Method");
-
-            int protoSize = packet.ReadInt32();
-            packet.ReadBytesTable("Data", protoSize);
-        }
-
-        [Parser(Opcode.SMSG_BATTLENET_NOTIFICATION)]
-        public static void HandleBattlenetNotification(Packet packet)
-        {
-            ReadMethodCall(packet, "Method");
-
-            int protoSize = packet.ReadInt32();
-            packet.ReadBytesTable("Data", protoSize);
-        }
-
-        [Parser(Opcode.SMSG_BATTLENET_RESPONSE)]
-        public static void HandleBattlenetResponse(Packet packet)
-        {
-            packet.ReadInt32E<BattlenetRpcErrorCode>("BnetStatus");
-            ReadMethodCall(packet, "Method");
-
-            int protoSize = packet.ReadInt32();
-            packet.ReadBytesTable("Data", protoSize);
         }
 
         [Parser(Opcode.SMSG_BATTLE_NET_CONNECTION_STATUS)]

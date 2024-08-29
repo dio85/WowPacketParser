@@ -6,6 +6,7 @@ using WowPacketParser.Misc;
 using WowPacketParser.PacketStructures;
 using WowPacketParser.Parsing;
 using WowPacketParser.Proto;
+using WowPacketParser.SQL.Builders;
 using WowPacketParser.Store;
 using WowPacketParser.Store.Objects;
 
@@ -121,12 +122,12 @@ namespace WowPacketParserModule.V7_0_3_22248.Parsers
             packet.ReadPackedGuid128("Item", idx);
 
             if (hasSrcLoc)
-                V6_0_2_19033.Parsers.SpellHandler.ReadLocation(packet, "SrcLocation");
+                V6_0_2_19033.Parsers.SpellHandler.ReadLocation(packet, idx, "SrcLocation");
 
             Vector3? dstLocation = null;
             if (hasDstLoc)
             {
-                dstLocation = V6_0_2_19033.Parsers.SpellHandler.ReadLocation(packet, "DstLocation");
+                dstLocation = V6_0_2_19033.Parsers.SpellHandler.ReadLocation(packet, idx, "DstLocation");
                 if (packetSpellData != null)
                     packetSpellData.DstLocation = dstLocation;
             }
@@ -497,15 +498,16 @@ namespace WowPacketParserModule.V7_0_3_22248.Parsers
         [Parser(Opcode.SMSG_SPELL_COOLDOWN, ClientVersionBuild.V7_1_0_22900)]
         public static void HandleSpellCooldown(Packet packet)
         {
-            packet.ReadPackedGuid128("Caster");
+            var guid = packet.ReadPackedGuid128("Caster");
             packet.ReadByte("Flags");
 
             var count = packet.ReadInt32("SpellCooldownsCount");
             for (int i = 0; i < count; i++)
             {
-                packet.ReadInt32("SrecID", i);
-                packet.ReadInt32("ForcedCooldown", i);
+                var spellId = packet.ReadInt32("SrecID", i);
+                var time = packet.ReadInt32("ForcedCooldown", i);
                 packet.ReadSingle("ModRate", i);
+                WowPacketParser.Parsing.Parsers.SpellHandler.FillSpellListCooldown((uint)spellId, time, guid.GetEntry());
             }
         }
 
@@ -659,13 +661,15 @@ namespace WowPacketParserModule.V7_0_3_22248.Parsers
         {
             if (ClientVersion.AddedInVersion(ClientVersionBuild.V7_2_5_24330))
                 packet.ReadPackedGuid128("AffectedGUID");
-            var count = packet.ReadInt32("LossOfControlInfoCount");
+            var count = packet.ReadInt32();
             for (int i = 0; i < count; i++)
             {
+                if (ClientVersion.AddedInVersion(ClientVersionBuild.V10_1_5_50232))
+                    packet.ReadUInt32("Duration", i);
                 packet.ReadByte("AuraSlot", i);
                 packet.ReadByte("EffectIndex", i);
-                packet.ReadByte("Type", i);
-                packet.ReadByte("Mechanic", i);
+                packet.ReadByteE<LossOfControlType>("LocType", i);
+                packet.ReadByteE<SpellMechanic>("Mechanic", i);
             }
         }
 

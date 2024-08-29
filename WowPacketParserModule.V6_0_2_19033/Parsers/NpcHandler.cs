@@ -1,6 +1,4 @@
-using Google.Protobuf.WellKnownTypes;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using WowPacketParser.DBC;
@@ -20,6 +18,16 @@ namespace WowPacketParserModule.V6_0_2_19033.Parsers
     public static class NpcHandler
     {
         public static uint LastGossipPOIEntry;
+
+        public static void ReadTreasureItem(Packet packet, params object[] idx)
+        {
+            packet.ReadBits("Type", 1, idx);
+            packet.ReadInt32("ID", idx);
+            packet.ReadInt32("Quantity", idx);
+
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V11_0_2_55959))
+                packet.ReadByte("ItemContext", idx);
+        }
 
         public static GossipMessageOption ReadGossipOptionsData(uint menuId, WowGuid npcGuid, Packet packet, params object[] idx)
         {
@@ -55,6 +63,7 @@ namespace WowPacketParserModule.V6_0_2_19033.Parsers
             uint confirmLen = packet.ReadBits(12);
             bool hasSpellId = false;
             bool hasOverrideIconId = false;
+            uint failureDescriptionLength = 0;
             if (ClientVersion.AddedInVersion(ClientType.Shadowlands) || ClientVersion.IsWotLKClientVersionBuild(ClientVersion.Build))
             {
                 packet.ReadBits("Status", 2, idx);
@@ -62,14 +71,14 @@ namespace WowPacketParserModule.V6_0_2_19033.Parsers
                     hasSpellId = packet.ReadBit();
                 if (ClientVersion.AddedInVersion(ClientVersionBuild.V10_0_0_46181))
                     hasOverrideIconId = packet.ReadBit();
+                if (ClientVersion.AddedInVersion(ClientType.TheWarWithin))
+                    failureDescriptionLength = packet.ReadBits(8);
 
                 uint rewardsCount = packet.ReadUInt32();
                 for (uint i = 0; i < rewardsCount; ++i)
                 {
                     packet.ResetBitReader();
-                    packet.ReadBits("Type", 1, idx, "TreasureItem", i);
-                    packet.ReadInt32("ID", idx, "TreasureItem", i);
-                    packet.ReadInt32("Quantity", idx, "TreasureItem", i);
+                    ReadTreasureItem(packet, idx, "TreasureItem", i);
                 }
             }
 
@@ -84,6 +93,9 @@ namespace WowPacketParserModule.V6_0_2_19033.Parsers
 
             if (hasOverrideIconId)
                 gossipOption.OverrideIconID = packet.ReadInt32("OverrideIconID", idx);
+
+            if (failureDescriptionLength > 1)
+                packet.ReadDynamicString("FailureDescription", failureDescriptionLength);
 
             gossipOption.FillBroadcastTextIDs();
 
@@ -291,7 +303,7 @@ namespace WowPacketParserModule.V6_0_2_19033.Parsers
             gossip.MenuID = packetGossip.MenuId = (uint)menuId;
 
             int friendshipFactionID = packet.ReadInt32("FriendshipFactionID");
-            CoreParsers.NpcHandler.AddGossipAddon(packetGossip.MenuId, friendshipFactionID, guid, packet.TimeSpan);
+            CoreParsers.NpcHandler.AddGossipAddon(packetGossip.MenuId, friendshipFactionID, 0, guid, packet.TimeSpan);
 
             gossip.TextID = packetGossip.TextId = (uint)packet.ReadInt32("TextID");
 
