@@ -585,5 +585,98 @@ namespace WowPacketParserModule.V4_4_0_54481.Parsers
             for (var i = 0; i < customizationsCount; i++)
                 ReadChrCustomizationChoice(packet, "Customizations", i);
         }
+
+        [Parser(Opcode.CMSG_CREATE_CHARACTER)]
+        public static void HandleClientCharCreate(Packet packet)
+        {
+            var nameLen = packet.ReadBits(6);
+            var hasTemplateSet = packet.ReadBit("HasTemplateSet");
+            packet.ReadBit("IsTrialBoost");
+            packet.ReadBit("UseNPE");
+
+            packet.ReadByteE<Race>("RaceID");
+            packet.ReadByteE<Class>("ClassID");
+            packet.ReadByteE<Gender>("SexID");
+
+            var customizationCount = packet.ReadUInt32();
+
+            packet.ReadWoWString("Name", nameLen);
+
+            if (hasTemplateSet)
+                packet.ReadInt32("TemplateSetID");
+
+            for (var i = 0u; i < customizationCount; ++i)
+                ReadChrCustomizationChoice(packet, "Customizations", i);
+        }
+
+        [Parser(Opcode.CMSG_GENERATE_RANDOM_CHARACTER_NAME)]
+        public static void HandleGenerateRandomCharacterNameQuery(Packet packet)
+        {
+            packet.ReadByteE<Race>("Race");
+            packet.ReadSByteE<Gender>("Sex");
+        }
+
+        [Parser(Opcode.CMSG_INSPECT)]
+        public static void HandleInspect(Packet packet)
+        {
+            packet.ReadPackedGuid128("Target");
+        }
+
+        [Parser(Opcode.CMSG_MOUNT_SET_FAVORITE)]
+        public static void HandleMountSetFavorite(Packet packet)
+        {
+            packet.ReadInt32("MountSpellID");
+            packet.ReadBit("IsFavorite");
+        }
+
+        [Parser(Opcode.CMSG_REORDER_CHARACTERS)]
+        public static void HandleReorderCharacters(Packet packet)
+        {
+            var count = packet.ReadBits("CharactersCount", 9);
+
+            for (var i = 0; i < count; ++i)
+            {
+                packet.ReadPackedGuid128("PlayerGUID");
+                packet.ReadByte("NewPosition", i);
+            }
+        }
+
+        [Parser(Opcode.CMSG_SET_PLAYER_DECLINED_NAMES)]
+        public static void HandleSetPlayerDeclinedNames(Packet packet)
+        {
+            packet.ReadPackedGuid128("Player");
+
+            var count = new int[5];
+            for (var i = 0; i < 5; ++i)
+                count[i] = (int)packet.ReadBits(7);
+
+            for (var i = 0; i < 5; ++i)
+                packet.ReadWoWString("DeclinedName", count[i], i);
+        }
+
+        [Parser(Opcode.CMSG_SET_PVP)]
+        public static void HandleSetPVP(Packet packet)
+        {
+            packet.ReadBit("EnablePVP");
+        }
+
+        [Parser(Opcode.CMSG_SET_TITLE)]
+        public static void HandleSetTitle(Packet packet)
+        {
+            packet.ReadInt32("TitleID");
+        }
+
+        [Parser(Opcode.CMSG_UNDELETE_CHARACTER)]
+        public static void HandleUndeleteCharacter(Packet packet)
+        {
+            packet.ReadInt32("ClientToken");
+            packet.ReadPackedGuid128("CharacterGuid");
+        }
+
+        [Parser(Opcode.CMSG_CONFIRM_BARBERS_CHOICE)]
+        [Parser(Opcode.CMSG_ENUM_CHARACTERS_DELETED_BY_CLIENT)]
+        public static void HandleCharNull(Packet packet)
+        {
+        }
     }
 }

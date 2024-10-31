@@ -10,23 +10,23 @@ using WowPacketParser.Store.Objects.UpdateFields.LegacyImplementation;
 namespace WowPacketParser.Store.Objects
 {
     [DBTableName("spell_areatrigger", TargetedDatabaseFlag.TillBattleForAzeroth)]
-    [DBTableName("areatrigger_create_properties", TargetedDatabaseFlag.SinceShadowlands)]
+    [DBTableName("areatrigger_create_properties", TargetedDatabaseFlag.SinceShadowlands | TargetedDatabaseFlag.CataClassic)]
     public sealed record AreaTriggerCreateProperties : WoWObject, IDataModel
     {
         [DBFieldName("SpellMiscId", TargetedDatabaseFlag.TillBattleForAzeroth, true)]
-        [DBFieldName("Id", TargetedDatabaseFlag.SinceShadowlands, true)]
+        [DBFieldName("Id", TargetedDatabaseFlag.SinceShadowlands | TargetedDatabaseFlag.CataClassic, true)]
         public uint? AreaTriggerCreatePropertiesId;
 
-        [DBFieldName("IsCustom", TargetedDatabaseFlag.SinceDragonflight, true)]
+        [DBFieldName("IsCustom", TargetedDatabaseFlag.SinceDragonflight | TargetedDatabaseFlag.CataClassic, true)]
         public byte? IsCustom;
 
         [DBFieldName("AreaTriggerId")]
         public uint? AreaTriggerId;
 
-        [DBFieldName("IsAreatriggerCustom", TargetedDatabaseFlag.SinceDragonflight)]
+        [DBFieldName("IsAreatriggerCustom", TargetedDatabaseFlag.SinceDragonflight | TargetedDatabaseFlag.CataClassic)]
         public byte? IsAreatriggerCustom = 0;
 
-        [DBFieldName("Flags", TargetedDatabaseFlag.SinceDragonflight)]
+        [DBFieldName("Flags", TargetedDatabaseFlag.SinceDragonflight | TargetedDatabaseFlag.CataClassic)]
         public uint? Flags;
 
         [DBFieldName("MoveCurveId")]
@@ -50,16 +50,19 @@ namespace WowPacketParser.Store.Objects
         [DBFieldName("DecalPropertiesId")]
         public uint? DecalPropertiesId = 0;
 
+        [DBFieldName("SpellForVisuals", TargetedDatabaseFlag.SinceDragonflight | TargetedDatabaseFlag.CataClassic, false, false, true)]
+        public uint? SpellForVisuals;
+
         [DBFieldName("TimeToTarget")]
         public uint? TimeToTarget = 0;
 
         [DBFieldName("TimeToTargetScale")]
         public uint? TimeToTargetScale = 0;
 
-        [DBFieldName("Shape", TargetedDatabaseFlag.SinceShadowlands)]
+        [DBFieldName("Shape", TargetedDatabaseFlag.SinceShadowlands | TargetedDatabaseFlag.CataClassic)]
         public byte? Shape;
 
-        [DBFieldName("ShapeData", TargetedDatabaseFlag.SinceShadowlands, 8, true)]
+        [DBFieldName("ShapeData", TargetedDatabaseFlag.SinceShadowlands | TargetedDatabaseFlag.CataClassic, 8, true)]
         public float?[] ShapeData = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
         [DBFieldName("VerifiedBuild")]
@@ -67,8 +70,6 @@ namespace WowPacketParser.Store.Objects
 
         // Will be inserted as comment
         public uint spellId = 0;
-
-        public uint SpellForVisuals;
 
         public string CustomId;
 
@@ -174,6 +175,9 @@ namespace WowPacketParser.Store.Objects
 
         [DBFieldName("DecalPropertiesId")]
         public uint? DecalPropertiesId = 0;
+
+        [DBFieldName("SpellForVisuals", TargetedDatabaseFlag.SinceDragonflight | TargetedDatabaseFlag.CataClassic, false, false, true)]
+        public uint? SpellForVisuals;
 
         [DBFieldName("TimeToTarget")]
         public uint? TimeToTarget = 0;

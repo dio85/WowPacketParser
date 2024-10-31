@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using WowPacketParser.DBC;
 using WowPacketParser.Enums;
@@ -158,7 +157,7 @@ namespace WowPacketParserModule.V4_4_0_54481.Parsers
                 AddBroadcastTextToGossip(packetGossip.MenuId, broadcastTextID, guid);
 
             for (int i = 0; i < questsCount; ++i)
-                packetGossip.Quests.Add(V7_0_3_22248.Parsers.NpcHandler.ReadGossipQuestTextData(packet, i, "GossipQuests"));
+                packetGossip.Quests.Add(ReadGossipQuestTextData(packet, i, "GossipQuests"));
 
             if (guid.GetObjectType() == ObjectType.Unit)
             {
@@ -412,45 +411,6 @@ namespace WowPacketParserModule.V4_4_0_54481.Parsers
             packet.ReadBit("Success");
         }
 
-        [HasSniffData]
-        [Parser(Opcode.SMSG_QUERY_NPC_TEXT_RESPONSE)]
-        public static void HandleNpcTextUpdate(Packet packet)
-        {
-            var entry = packet.ReadEntry("Entry");
-            if (entry.Value) // Can be masked
-                return;
-
-            Bit hasData = packet.ReadBit("Has Data");
-            int size = packet.ReadInt32("Size");
-
-            if (!hasData || size == 0)
-                return; // nothing to do
-
-            NpcTextMop npcText = new NpcTextMop
-            {
-                ID = (uint)entry.Key
-            };
-
-            var data = packet.ReadBytes(size);
-
-            Packet pkt = new Packet(data, packet.Opcode, packet.Time, packet.Direction, packet.Number, packet.Writer, packet.FileName);
-            npcText.Probabilities = new float[8];
-            npcText.BroadcastTextId = new uint[8];
-            for (int i = 0; i < 8; ++i)
-                npcText.Probabilities[i] = pkt.ReadSingle("Probability", i);
-            for (int i = 0; i < 8; ++i)
-                npcText.BroadcastTextId[i] = pkt.ReadUInt32("Broadcast Text Id", i);
-
-            pkt.ClosePacket(false);
-
-            packet.AddSniffData(StoreNameType.NpcText, entry.Key, "QUERY_RESPONSE");
-
-            Storage.NpcTextsMop.Add(npcText, packet.TimeSpan);
-            var proto = packet.Holder.NpcText = new() { Entry = npcText.ID.Value };
-            for (int i = 0; i < 8; ++i)
-                proto.Texts.Add(new PacketNpcTextEntry() { Probability = npcText.Probabilities[i], BroadcastTextId = npcText.BroadcastTextId[i] });
-        }
-
         [Parser(Opcode.SMSG_TRAINER_BUY_FAILED)]
         public static void HandleTrainerBuyFailed(Packet packet)
         {
@@ -463,6 +423,40 @@ namespace WowPacketParserModule.V4_4_0_54481.Parsers
         public static void HandleBuyBankSlot(Packet packet)
         {
             packet.ReadPackedGuid128("Banker");
+        }
+
+        [Parser(Opcode.CMSG_SPELL_CLICK)]
+        public static void HandleSpellClick(Packet packet)
+        {
+            WowGuid guid = packet.ReadPackedGuid128("SpellClickUnitGUID");
+            packet.Holder.SpellClick = new() { Target = guid };
+            packet.ReadBit("TryAutoDismount");
+
+            if (guid.GetObjectType() == ObjectType.Unit)
+                Storage.NpcSpellClicks.Add(guid, packet.TimeSpan);
+        }
+
+        [Parser(Opcode.CMSG_SPIRIT_HEALER_ACTIVATE)]
+        public static void HandleSpiritHealerActivate(Packet packet)
+        {
+            CoreParsers.NpcHandler.LastGossipOption.Reset();
+            CoreParsers.NpcHandler.TempGossipOptionPOI.Reset();
+            CoreParsers.NpcHandler.LastGossipOption.Guid = packet.ReadPackedGuid128("Healer");
+        }
+
+        [Parser(Opcode.CMSG_TABARD_VENDOR_ACTIVATE)]
+        public static void HandleTabardVendorActivate(Packet packet)
+        {
+            packet.ReadPackedGuid128("Vendor");
+            packet.ReadInt32("Type");
+        }
+
+        [Parser(Opcode.CMSG_TRAINER_BUY_SPELL)]
+        public static void HandleTrainerBuySpell(Packet packet)
+        {
+            packet.ReadPackedGuid128("TrainerGUID");
+            packet.ReadInt32("TrainerID");
+            packet.ReadInt32<SpellId>("SpellID");
         }
     }
 }

@@ -142,6 +142,7 @@ namespace WowPacketParser.Parsing.Parsers
         public static void ProcessExistingObject(ref WoWObject obj, WoWObject newObj, WowGuid guid)
         {
             obj.PhaseMask |= newObj.PhaseMask;
+            obj.EntityFragments = newObj.EntityFragments;
             if (guid.GetHighType() == HighGuidType.Creature) // skip if not an unit
             {
                 if (!obj.Movement.HasWpsOrRandMov)
@@ -3104,7 +3105,7 @@ namespace WowPacketParser.Parsing.Parsers
             update.Destroyed.Add(new DestroyedObject()
             {
                 Guid = guid,
-                Text = packet.Writer.ToString()
+                Text = packet.Writer?.ToString() ?? ""
             });
         }
 

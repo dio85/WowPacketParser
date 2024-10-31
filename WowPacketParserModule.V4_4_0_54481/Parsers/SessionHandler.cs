@@ -346,9 +346,24 @@ namespace WowPacketParserModule.V4_4_0_54481.Parsers
             packet.ReadBytes("Secret", 32);
         }
 
+        [Parser(Opcode.CMSG_CONNECT_TO_FAILED)]
+        public static void HandleRedirectFailed(Packet packet)
+        {
+            packet.ReadUInt32("Serial");
+            packet.ReadSByte("Con");
+        }
+
+        [Parser(Opcode.CMSG_LOGOUT_REQUEST)]
+        public static void HandleLogoutRequest(Packet packet)
+        {
+            packet.ReadBit("IdleLogout");
+        }
+
         [Parser(Opcode.CMSG_ENTER_ENCRYPTED_MODE_ACK)]
         [Parser(Opcode.SMSG_LOGOUT_COMPLETE)]
         [Parser(Opcode.SMSG_WAIT_QUEUE_FINISH)]
+        [Parser(Opcode.CMSG_KEEP_ALIVE)]
+        [Parser(Opcode.CMSG_LOGOUT_CANCEL)]
         public static void HandleSessionZero(Packet packet)
         {
         }

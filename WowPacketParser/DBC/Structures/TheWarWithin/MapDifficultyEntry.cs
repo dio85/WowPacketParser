@@ -1,10 +1,9 @@
-﻿using DBFileReaderLib.Attributes;
+using DBFileReaderLib.Attributes;
 
 namespace WowPacketParser.DBC.Structures.TheWarWithin
 {
     [DBFile("MapDifficulty")]
-
-    public class MapDifficultyEntry
+    public sealed class MapDifficultyEntry
     {
         [Index(true)]
         public uint ID;
@@ -17,6 +16,8 @@ namespace WowPacketParser.DBC.Structures.TheWarWithin
         public int ItemContextPickerID;
         public int Flags;
         public int ContentTuningID;
+        public int WorldStateExpressionID;
+        [NonInlineRelation(typeof(uint))]
         public int MapID;
     }
 }
