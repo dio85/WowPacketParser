@@ -134,6 +134,9 @@ namespace WowPacketParserModule.V4_4_0_54481.Parsers
             var optionalReagentsCount = packet.ReadUInt32("OptionalReagentsCount", idx);
             var removedModificationsCount = packet.ReadUInt32("RemovedModificationsCount", idx);
 
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V4_4_1_57294))
+                packet.ReadByte("CraftingFlags", idx);
+
             for (var j = 0; j < optionalCurrenciesCount; ++j)
                 ReadOptionalCurrency(packet, idx, "OptionalCurrency", j);
 
@@ -292,7 +295,12 @@ namespace WowPacketParserModule.V4_4_0_54481.Parsers
                 ReadSpellMissStatus(packet, idx, "MissStatus", i);
 
             for (var i = 0; i < remainingPowerCount; ++i)
-                ReadSpellPowerData(packet, idx, "RemainingPower", i);
+            {
+                if (ClientVersion.AddedInVersion(ClientVersionBuild.V4_4_1_57294))
+                    ReadSpellPowerData441(packet, idx, "RemainingPower", i);
+                else
+                    ReadSpellPowerData(packet, idx, "RemainingPower", i);
+            }
 
             if (hasRuneData)
                 ReadRuneData(packet, idx, "RemainingRunes");
@@ -313,6 +321,12 @@ namespace WowPacketParserModule.V4_4_0_54481.Parsers
         {
             packet.ReadInt32("Cost", idx);
             packet.ReadByteE<PowerType>("Type", idx);
+        }
+
+        public static void ReadSpellPowerData441(Packet packet, params object[] idx)
+        {
+            packet.ReadByteE<PowerType>("Type", idx);
+            packet.ReadInt32("Cost", idx);
         }
 
         public static void ReadRuneData(Packet packet, params object[] indexes)
@@ -824,7 +838,10 @@ namespace WowPacketParserModule.V4_4_0_54481.Parsers
         [Parser(Opcode.SMSG_INTERRUPT_POWER_REGEN)]
         public static void HandleInterruptPowerRegen(Packet packet)
         {
-            packet.ReadInt32E<PowerType>("PowerType");
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V4_4_1_57294))
+                packet.ReadByteE<PowerType>("PowerType");
+            else
+                packet.ReadInt32E<PowerType>("PowerType");
         }
 
         [Parser(Opcode.SMSG_LEARN_TALENT_FAILED)]
@@ -920,6 +937,8 @@ namespace WowPacketParserModule.V4_4_0_54481.Parsers
             packet.ReadVector3("SourceOrientation");
             packet.ReadVector3("TargetLocation");
             packet.ReadPackedGuid128("Target");
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V4_4_1_57294))
+                packet.ReadPackedGuid128("TargetTransport");
             packet.ReadInt32("SpellVisualID");
             packet.ReadSingle("TravelSpeed");
             packet.ReadSingle("LaunchDelay");

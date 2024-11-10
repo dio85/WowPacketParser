@@ -6,7 +6,7 @@ using WowPacketParser.Enums.Version.v1_13_5_34713;
 using WowPacketParser.Enums.Version.V1_13_6_36231;
 using WowPacketParser.Enums.Version.V1_14_1_40688;
 using WowPacketParser.Enums.Version.V1_14_4_51146;
-using WowPacketParser.Enums.Version.V1_15_0_52302;
+using WowPacketParser.Enums.Version.V1_15_0_52146;
 using WowPacketParser.Enums.Version.V2_4_3_8606;
 using WowPacketParser.Enums.Version.V2_5_1_38835;
 using WowPacketParser.Enums.Version.V2_5_2_39570;
@@ -82,6 +82,8 @@ using WowPacketParser.Enums.Version.V11_0_0_55666;
 using WowPacketParser.Enums.Version.V11_0_2_55959;
 using WowPacketParser.Enums.Version.V11_0_5_57171;
 using WowPacketParser.Misc;
+using WowPacketParser.Enums.Version.V1_15_4_56738;
+using WowPacketParser.Enums.Version.V1_15_3_55515;
 
 namespace WowPacketParser.Enums.Version
 {
@@ -733,6 +735,7 @@ namespace WowPacketParser.Enums.Version
                 case ClientVersionBuild.V11_0_5_57171:
                 case ClientVersionBuild.V11_0_5_57212:
                 case ClientVersionBuild.V11_0_5_57292:
+                case ClientVersionBuild.V11_0_5_57388:
                     return ClientVersionBuild.V11_0_5_57171;
                 case ClientVersionBuild.V1_13_2_31446:
                 case ClientVersionBuild.V1_13_2_31650:
@@ -936,12 +939,22 @@ namespace WowPacketParser.Enums.Version
                 case ClientVersionBuild.V3_4_3_53788:
                 case ClientVersionBuild.V3_4_3_54261:
                     return ClientVersionBuild.V3_4_3_51666;
-                case ClientVersionBuild.V1_15_0_52302: // inherits from above
+                case ClientVersionBuild.V1_15_0_52146: // inherits from above
+                case ClientVersionBuild.V1_15_0_52186:
+                case ClientVersionBuild.V1_15_0_52212:
+                case ClientVersionBuild.V1_15_0_52302:
+                case ClientVersionBuild.V1_15_0_52409:
                 case ClientVersionBuild.V1_15_0_52610:
                 case ClientVersionBuild.V1_15_1_53247:
                 case ClientVersionBuild.V1_15_1_53495:
+                case ClientVersionBuild.V1_15_1_53623:
                 case ClientVersionBuild.V1_15_2_54262:
-                    return ClientVersionBuild.V1_15_0_52302;
+                case ClientVersionBuild.V1_15_2_54332:
+                case ClientVersionBuild.V1_15_2_54649:
+                case ClientVersionBuild.V1_15_2_54902:
+                case ClientVersionBuild.V1_15_2_55002:
+                case ClientVersionBuild.V1_15_2_55140:
+                    return ClientVersionBuild.V1_15_0_52146;
                 case ClientVersionBuild.V4_4_0_54481:
                 case ClientVersionBuild.V4_4_0_54500:
                 case ClientVersionBuild.V4_4_0_54501:
@@ -964,7 +977,21 @@ namespace WowPacketParser.Enums.Version
                 case ClientVersionBuild.V4_4_0_56713:
                 case ClientVersionBuild.V4_4_0_57244:
                     return ClientVersionBuild.V4_4_0_54481;
+                case ClientVersionBuild.V1_15_3_55515: // inherits from above
+                case ClientVersionBuild.V1_15_3_55563:
+                case ClientVersionBuild.V1_15_3_55646:
+                case ClientVersionBuild.V1_15_3_55917:
+                case ClientVersionBuild.V1_15_3_55488:
+                case ClientVersionBuild.V1_15_3_55626:
+                    return ClientVersionBuild.V1_15_3_55515;
+                case ClientVersionBuild.V1_15_4_56738: // inherits from above and below
+                case ClientVersionBuild.V1_15_4_56760:
+                case ClientVersionBuild.V1_15_4_56817:
+                case ClientVersionBuild.V1_15_4_56857:
+                case ClientVersionBuild.V1_15_4_57134:
+                    return ClientVersionBuild.V1_15_4_56738;
                 case ClientVersionBuild.V4_4_1_57294:
+                case ClientVersionBuild.V4_4_1_57359:
                     return ClientVersionBuild.V4_4_1_57294;
                 default:
                     return ClientVersionBuild.V3_3_5a_12340;
@@ -1123,8 +1150,12 @@ namespace WowPacketParser.Enums.Version
                     return Opcodes_1_14_1.Opcodes(direction);
                 case ClientVersionBuild.V1_14_4_51146:
                     return Opcodes_1_14_4.Opcodes(direction);
-                case ClientVersionBuild.V1_15_0_52302:
+                case ClientVersionBuild.V1_15_0_52146:
                     return Opcodes_1_15_0.Opcodes(direction);
+                case ClientVersionBuild.V1_15_3_55515:
+                    return Opcodes_1_15_3.Opcodes(direction);
+                case ClientVersionBuild.V1_15_4_56738:
+                    return Opcodes_1_15_4.Opcodes(direction);
                 case ClientVersionBuild.V2_5_1_38835:
                     return Opcodes_2_5_1.Opcodes(direction);
                 case ClientVersionBuild.V2_5_2_39570:

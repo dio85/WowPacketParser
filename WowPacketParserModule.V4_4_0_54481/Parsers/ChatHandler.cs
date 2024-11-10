@@ -38,6 +38,11 @@ namespace WowPacketParserModule.V4_4_0_54481.Parsers
             packet.ReadUInt32("TargetVirtualAddress");
             packet.ReadUInt32("SenderVirtualAddress");
             packet.ReadInt32("AchievementID");
+
+            uint chatFlags = 0;
+            if (ClientVersion.AddedInVersion(ClientBranch.Cata, ClientVersionBuild.V4_4_1_57294) || ClientVersion.AddedInVersion(ClientBranch.Classic, ClientVersionBuild.V1_15_3_55515))
+                chatFlags = packet.ReadUInt16("ChatFlags");
+
             packet.ReadSingle("DisplayTime");
             packet.ReadInt32<SpellId>("SpellID");
 
@@ -46,7 +51,9 @@ namespace WowPacketParserModule.V4_4_0_54481.Parsers
             var prefixLen = packet.ReadBits(5);
             var channelLen = packet.ReadBits(7);
             var textLen = packet.ReadBits(12);
-            var chatFlags = packet.ReadBits("ChatFlags", 15);
+
+            if (ClientVersion.RemovedInVersion(ClientBranch.Cata, ClientVersionBuild.V4_4_1_57294) || ClientVersion.RemovedInVersion(ClientBranch.Classic, ClientVersionBuild.V1_15_3_55515))
+                chatFlags = packet.ReadBits("ChatFlags", 15);
 
             packet.ReadBit("HideChatLog");
             packet.ReadBit("FakeSenderName");
@@ -203,8 +210,17 @@ namespace WowPacketParserModule.V4_4_0_54481.Parsers
             packet.ReadPackedGuid128("PlayerGUID");
             packet.ReadUInt32("PlayerVirtualRealmAddress");
 
-            var playerNameLen = packet.ReadBits(6);
-            var channelNameLen = packet.ReadBits(6);
+            var playerBitsCount = 6;
+            var channelBitsCount = 6;
+
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V4_4_1_57294))
+            {
+                playerBitsCount = 7;
+                channelBitsCount = 7;
+            }
+
+            var playerNameLen = packet.ReadBits(playerBitsCount);
+            var channelNameLen = packet.ReadBits(channelBitsCount);
 
             if (playerNameLen > 1)
                 packet.ReadDynamicString("PlayerName", playerNameLen);
@@ -242,7 +258,15 @@ namespace WowPacketParserModule.V4_4_0_54481.Parsers
             packet.ReadInt32E<Language>("Language");
             packet.ReadPackedGuid128("TargetGUID");
             packet.ReadUInt32("TargetVirtualRealmAddress");
-            var targetLen = packet.ReadBits(6);
+
+            var bitsCount = 6;
+
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V4_4_1_57294))
+            {
+                bitsCount = 7;
+            }
+
+            var targetLen = packet.ReadBits(bitsCount);
             var textLen = packet.ReadBits(11);
 
             if (targetLen > 1)

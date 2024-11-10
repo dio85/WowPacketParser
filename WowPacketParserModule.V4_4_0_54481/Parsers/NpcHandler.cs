@@ -52,6 +52,10 @@ namespace WowPacketParserModule.V4_4_0_54481.Parsers
             bool hasSpellId = packet.ReadBit();
             bool hasOverrideIconId = packet.ReadBit();
 
+            uint failureDescriptionLength = 0;
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V4_4_1_57294))
+                failureDescriptionLength = packet.ReadBits(8);
+
             uint rewardsCount = packet.ReadUInt32();
             for (uint i = 0; i < rewardsCount; ++i)
             {
@@ -59,6 +63,9 @@ namespace WowPacketParserModule.V4_4_0_54481.Parsers
                 packet.ReadBits("Type", 1, idx, "TreasureItem", i);
                 packet.ReadInt32("ID", idx, "TreasureItem", i);
                 packet.ReadInt32("Quantity", idx, "TreasureItem", i);
+
+                if (ClientVersion.AddedInVersion(ClientVersionBuild.V4_4_1_57294))
+                    packet.ReadByte("ItemContext", idx, "TreasureItem", i);
             }
 
             gossipOption.OptionText = gossipMessageOption.Text = packet.ReadWoWString("Text", textLen, idx);
@@ -72,6 +79,9 @@ namespace WowPacketParserModule.V4_4_0_54481.Parsers
 
             if (hasOverrideIconId)
                 gossipOption.OverrideIconID = packet.ReadInt32("OverrideIconID", idx);
+
+            if (failureDescriptionLength > 1)
+                packet.ReadDynamicString("FailureDescription", failureDescriptionLength);
 
             gossipOption.FillBroadcastTextIDs();
 
@@ -118,6 +128,9 @@ namespace WowPacketParserModule.V4_4_0_54481.Parsers
 
             int menuId = packet.ReadInt32("GossipID");
             packetGossip.MenuId = (uint)menuId;
+
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V4_4_1_57294))
+                packet.ReadInt32("LfgDungeonsID");
 
             int friendshipFactionID = packet.ReadInt32("FriendshipFactionID");
             CoreParsers.NpcHandler.AddGossipAddon(packetGossip.MenuId, friendshipFactionID, 0, guid, packet.TimeSpan);
@@ -346,7 +359,6 @@ namespace WowPacketParserModule.V4_4_0_54481.Parsers
             CoreParsers.NpcHandler.TempGossipOptionPOI.Reset();
         }
 
-        [Parser(Opcode.CMSG_BANKER_ACTIVATE)]
         [Parser(Opcode.CMSG_BINDER_ACTIVATE)]
         [Parser(Opcode.SMSG_BINDER_CONFIRM)]
         [Parser(Opcode.CMSG_TALK_TO_GOSSIP)]
@@ -357,6 +369,20 @@ namespace WowPacketParserModule.V4_4_0_54481.Parsers
             CoreParsers.NpcHandler.LastGossipOption.Reset();
             CoreParsers.NpcHandler.TempGossipOptionPOI.Reset();
             var guid = CoreParsers.NpcHandler.LastGossipOption.Guid = packet.ReadPackedGuid128("Guid");
+
+            if (packet.Opcode == Opcodes.GetOpcode(Opcode.CMSG_TALK_TO_GOSSIP, Direction.ClientToServer))
+                packet.Holder.GossipHello = new PacketGossipHello { GossipSource = guid };
+        }
+
+        [Parser(Opcode.CMSG_BANKER_ACTIVATE)]
+        public static void HandleBankerActivate(Packet packet)
+        {
+            CoreParsers.NpcHandler.LastGossipOption.Reset();
+            CoreParsers.NpcHandler.TempGossipOptionPOI.Reset();
+            var guid = CoreParsers.NpcHandler.LastGossipOption.Guid = packet.ReadPackedGuid128("Guid");
+
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V4_4_1_57294))
+                packet.ReadInt32E<PlayerInteractionType>("InteractionType");
 
             if (packet.Opcode == Opcodes.GetOpcode(Opcode.CMSG_TALK_TO_GOSSIP, Direction.ClientToServer))
                 packet.Holder.GossipHello = new PacketGossipHello { GossipSource = guid };
