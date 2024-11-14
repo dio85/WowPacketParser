@@ -50,6 +50,7 @@ namespace WowPacketParserModule.V4_4_0_54481.Parsers
                     packet.ReadInt32("FactionID");
 
                 packet.ReadBit("FactionHasBonus", i);
+                packet.ResetBitReader();
             }
         }
 
@@ -88,7 +89,6 @@ namespace WowPacketParserModule.V4_4_0_54481.Parsers
             for (int i = 0; i < count; i++)
                 ReadFactionStandingData(packet, i);
 
-            packet.ResetBitReader();
             packet.ReadBit("ShowVisual");
         }
 
