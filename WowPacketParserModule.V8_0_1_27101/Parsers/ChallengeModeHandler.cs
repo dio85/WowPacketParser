@@ -6,12 +6,12 @@ namespace WowPacketParserModule.V8_0_1_27101.Parsers
 {
     public static class ChallengeModeHandler
     {
-        public static void ReadUnk3ChallengeModeMapStats(Packet packet, params object[] indexes)
+        public static void ReadModeAttemptChallengeModeMapStats(Packet packet, params object[] indexes)
         {
             packet.ResetBitReader();
-            packet.ReadInt32("Unk1", indexes);
-            packet.ReadInt32("Unk2", indexes);
-            packet.ReadTime("UnkTime3", indexes);
+            packet.ReadInt32("InstanceRealmAddress", indexes);
+            packet.ReadInt32("AttemptID", indexes);
+            packet.ReadTime("CompletionTime", indexes);
             packet.ReadTime("UnkTime4", indexes);
             if (ClientVersion.AddedInVersion(ClientVersionBuild.V8_1_0_28724))
                 packet.ReadTime("UnkTime5", indexes);
@@ -19,33 +19,33 @@ namespace WowPacketParserModule.V8_0_1_27101.Parsers
             packet.ReadBit("UnkBit", indexes);
         }
 
-        public static void ReadUnk2ChallengeModeMapStats(Packet packet, params object[] indexes)
+        public static void ReadBMemberChallengeModeMapStats(Packet packet, params object[] indexes)
         {
             packet.ResetBitReader();
-            packet.ReadPackedGuid128("UnkGuid", indexes);
-            packet.ReadPackedGuid128("UnkGuid2", indexes);
-            packet.ReadUInt32("Unk1", indexes);
-            packet.ReadUInt32("Unk2", indexes);
-            packet.ReadInt16("Unk3", indexes);
+            packet.ReadPackedGuid128("PlayerGuid", indexes);
+            packet.ReadPackedGuid128("GuildGuid", indexes);
+            packet.ReadUInt32("VirtualRealmAddress", indexes);
+            packet.ReadUInt32("NativeRealmAddress", indexes);
+            packet.ReadInt16("SpecializationID", indexes);
             packet.ReadInt16("Unk4", indexes);
-            packet.ReadInt32("Unk5", indexes);
+            packet.ReadInt32("EquipmentLevel", indexes);
         }
 
-        public static void ReadUnkChallengeModeMapStats(Packet packet, params object[] indexes)
+        public static void ReadChallengeModeMapStats(Packet packet, params object[] indexes)
         {
             packet.ResetBitReader();
-            packet.ReadInt32("Unk1", indexes);
-            packet.ReadUInt32("Unk2", indexes);
-            packet.ReadInt32("Unk3", indexes);
-            packet.ReadTime("UnkTime", indexes);
-            packet.ReadTime("UnkTime", indexes);
+            packet.ReadInt32("BestCompletionMilliseconds", indexes);
+            packet.ReadUInt32("MapId", indexes);
+            packet.ReadInt32("LastCompletionMilliseconds", indexes);
+            packet.ReadTime("LastMedalDate", indexes);
+            packet.ReadTime("BestMedalDate", indexes);
 
             for (int i = 0; i < 4; i++)
-                packet.ReadUInt32("Unk6", indexes, i);
+                packet.ReadUInt32("Affixes", indexes, i);
 
-            var unkCount = packet.ReadUInt32("UnkCount", indexes);
+            var unkCount = packet.ReadUInt32("BMembersCount", indexes);
             for (int i = 0; i < unkCount; i++)
-                ReadUnk2ChallengeModeMapStats(packet, indexes, i);
+                ReadBMemberChallengeModeMapStats(packet, indexes, i);
 
             packet.ResetBitReader();
             packet.ReadBit("UnkBit", indexes);
@@ -63,32 +63,32 @@ namespace WowPacketParserModule.V8_0_1_27101.Parsers
             packet.ReadInt32("LastWeekMapChallengeKeyEntry");
             packet.ReadInt32("CurrentWeekHighestKeyCompleted");
             if (ClientVersion.AddedInVersion(ClientVersionBuild.V8_1_0_28724))
-                packet.ReadInt32("UnkInt"); // always 13 for me
+                packet.ReadInt32("SeasonID"); // always 13 for me
         }
 
         [Parser(Opcode.SMSG_MYTHIC_PLUS_ALL_MAP_STATS)]
         public static void HandleMythicPlusAllMapStats(Packet packet)
         {
-            var unkCount = packet.ReadUInt32("Unk1");
-            var unkCount2 = packet.ReadUInt32("Unk2");
-            var unkCount3 = packet.ReadUInt32("Unk3");
-            packet.ReadInt32("Unk5");
+            var playerMapStatsCount = packet.ReadUInt32("PlayerMemberMapStats");
+            var guildMemberMapStatsCount = packet.ReadUInt32("GuildMemberMapStats");
+            var memberCount = packet.ReadUInt32("MemberCount");
+            packet.ReadInt32("Season");
             if (ClientVersion.AddedInVersion(ClientVersionBuild.V8_1_0_28724))
-                packet.ReadInt32("Unk6");
+                packet.ReadInt32("SubSeason");
 
-            for (int i = 0; i < unkCount; i++)
-                ReadUnkChallengeModeMapStats(packet, i);
+            for (int i = 0; i < playerMapStatsCount; i++)
+                ReadBMemberChallengeModeMapStats(packet, i);
 
-            for (int i = 0; i < unkCount2; i++)
+            for (int i = 0; i < guildMemberMapStatsCount; i++)
             {
                 packet.ReadInt32("Unk7", i);
                 if (ClientVersion.AddedInVersion(ClientVersionBuild.V8_1_0_28724))
                     packet.ReadInt32("Unk8", i);
-                ReadUnkChallengeModeMapStats(packet, i);
+                ReadBMemberChallengeModeMapStats(packet, i);
             }
 
-            for (int i = 0; i < unkCount3; i++)
-                ReadUnk3ChallengeModeMapStats(packet, i);
+            for (int i = 0; i < memberCount; i++)
+                ReadModeAttemptChallengeModeMapStats(packet, i);
         }
 
         [Parser(Opcode.SMSG_MYTHIC_PLUS_CURRENT_AFFIXES)]
