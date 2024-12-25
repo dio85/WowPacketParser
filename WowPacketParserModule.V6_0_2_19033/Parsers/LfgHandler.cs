@@ -257,6 +257,8 @@ namespace WowPacketParserModule.V6_0_2_19033.Parsers
 
             for (int i = 0; i < int4; i++)
                 packet.ReadPackedGuid128("SuspendedPlayers", i);
+            if(ClientVersion.AddedInVersion(ClientType.BattleForAzeroth))
+                packet.ReadInt32("QueueMapID");
 
             packet.ResetBitReader();
 

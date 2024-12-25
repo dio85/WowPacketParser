@@ -30,11 +30,6 @@ namespace WowPacketParserModule.V7_0_3_22248.Parsers
 
             if (hasQuest)
                 packet.ReadUInt32("QuestID", idx);
-
-            if(ClientVersion.AddedInVersion(ClientVersionBuild.V8_0_1_27101)) 
-            {
-                packet.ReadUInt32("MinMyticPlusRating");
-            }
         }
 
         public static void ReadLfgListSearchResultMemberInfo(Packet packet, params object[] idx)
