@@ -266,7 +266,7 @@ namespace WowPacketParserModule.V9_0_1_36216.UpdateFields.V9_2_7_45114
             data.Gems.Resize(packet.ReadUInt32());
             if ((flags & UpdateFieldFlag.Owner) != UpdateFieldFlag.None)
             {
-                data.DynamicFlags2 = packet.ReadUInt32("DynamicFlags2", indexes);
+                data.DynamicFlags2 = packet.ReadUInt32("ZoneFlags", indexes);
                 data.DEBUGItemLevel = packet.ReadUInt16("DEBUGItemLevel", indexes);
             }
             for (var i = 0; i < data.ArtifactPowers.Count; ++i)
@@ -398,7 +398,7 @@ namespace WowPacketParserModule.V9_0_1_36216.UpdateFields.V9_2_7_45114
                 }
                 if (changesMask[19])
                 {
-                    data.DynamicFlags2 = packet.ReadUInt32("DynamicFlags2", indexes);
+                    data.DynamicFlags2 = packet.ReadUInt32("ZoneFlags", indexes);
                 }
                 if (changesMask[20])
                 {
@@ -4032,7 +4032,7 @@ namespace WowPacketParserModule.V9_0_1_36216.UpdateFields.V9_2_7_45114
             data.AnimationDataID = packet.ReadUInt32("AnimationDataID", indexes);
             data.AnimKitID = packet.ReadUInt32("AnimKitID", indexes);
             data.AnimProgress = packet.ReadUInt32("AnimProgress", indexes);
-            data.Field_C = packet.ReadBit("Field_C", indexes);
+            data.IsDecay = packet.ReadBit("IsDecay", indexes);
             return data;
         }
 
@@ -4048,7 +4048,7 @@ namespace WowPacketParserModule.V9_0_1_36216.UpdateFields.V9_2_7_45114
             {
                 if (changesMask[1])
                 {
-                    data.Field_C = packet.ReadBit("Field_C", indexes);
+                    data.IsDecay = packet.ReadBit("IsDecay", indexes);
                 }
             }
             packet.ResetBitReader();

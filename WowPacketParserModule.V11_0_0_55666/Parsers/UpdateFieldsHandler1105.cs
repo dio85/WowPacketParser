@@ -259,7 +259,7 @@ namespace WowPacketParserModule.V11_0_0_55666.UpdateFields.V11_0_5_57171
             data.Gems.Resize(packet.ReadUInt32());
             if ((flags & UpdateFieldFlag.Owner) != UpdateFieldFlag.None)
             {
-                data.DynamicFlags2 = packet.ReadUInt32("DynamicFlags2", indexes);
+                data.DynamicFlags2 = packet.ReadUInt32("ZoneFlags", indexes);
             }
             Substructures.ItemHandler.ReadItemBonusKey(packet, indexes, "ItemBonusKey");
             if ((flags & UpdateFieldFlag.Owner) != UpdateFieldFlag.None)
@@ -383,7 +383,7 @@ namespace WowPacketParserModule.V11_0_0_55666.UpdateFields.V11_0_5_57171
                 }
                 if (changesMask[18])
                 {
-                    data.DynamicFlags2 = packet.ReadUInt32("DynamicFlags2", indexes);
+                    data.DynamicFlags2 = packet.ReadUInt32("ZoneFlags", indexes);
                 }
                 if (changesMask[19])
                 {
@@ -3035,7 +3035,7 @@ namespace WowPacketParserModule.V11_0_0_55666.UpdateFields.V11_0_5_57171
             var data = new QuestSession();
             packet.ResetBitReader();
             data.Owner = packet.ReadPackedGuid128("Owner", indexes);
-            for (var i = 0; i < 950; ++i)
+            for (var i = 0; i < 1000; ++i)
             {
                 data.QuestCompleted[i] = packet.ReadUInt64("QuestCompleted", indexes, i);
             }
@@ -3046,11 +3046,11 @@ namespace WowPacketParserModule.V11_0_0_55666.UpdateFields.V11_0_5_57171
         {
             var data = new QuestSession();
             packet.ResetBitReader();
-            var rawChangesMask = new int[30];
+            var rawChangesMask = new int[32];
             var rawMaskMask = new int[1];
-            rawMaskMask[0] = (int)packet.ReadBits(30);
+            rawMaskMask[0] = (int)packet.ReadBits(32);
             var maskMask = new BitArray(rawMaskMask);
-            for (var i = 0; i < 30; ++i)
+            for (var i = 0; i < 32; ++i)
                 if (maskMask[i])
                     rawChangesMask[i] = (int)packet.ReadBits(32);
             var changesMask = new BitArray(rawChangesMask);
@@ -3065,7 +3065,7 @@ namespace WowPacketParserModule.V11_0_0_55666.UpdateFields.V11_0_5_57171
             }
             if (changesMask[2])
             {
-                for (var i = 0; i < 950; ++i)
+                for (var i = 0; i < 1000; ++i)
                 {
                     if (changesMask[3 + i])
                     {
@@ -6022,7 +6022,7 @@ namespace WowPacketParserModule.V11_0_0_55666.UpdateFields.V11_0_5_57171
             data.AnimationDataID = packet.ReadUInt32("AnimationDataID", indexes);
             data.AnimKitID = packet.ReadUInt32("AnimKitID", indexes);
             data.AnimProgress = packet.ReadUInt32("AnimProgress", indexes);
-            data.Field_C = packet.ReadBit("Field_C", indexes);
+            data.IsDecay = packet.ReadBit("IsDecay", indexes);
             return data;
         }
 
@@ -6038,7 +6038,7 @@ namespace WowPacketParserModule.V11_0_0_55666.UpdateFields.V11_0_5_57171
             {
                 if (changesMask[1])
                 {
-                    data.Field_C = packet.ReadBit("Field_C", indexes);
+                    data.IsDecay = packet.ReadBit("IsDecay", indexes);
                 }
             }
             packet.ResetBitReader();

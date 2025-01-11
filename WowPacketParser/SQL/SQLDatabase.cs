@@ -178,7 +178,8 @@ namespace WowPacketParser.SQL
                         broadcastText.EmoteDelay[2] = Convert.ToUInt16(reader["EmoteDelay3"]);
                         broadcastText.EmotesID = Convert.ToUInt16(reader["EmotesID"]);
                         broadcastText.LanguageID = Convert.ToInt32(reader["LanguageID"]);
-                        broadcastText.Flags = Convert.ToByte(reader["Flags"]);
+                        broadcastText.Flags = Convert.ToUInt16(reader["Flags"]);
+
                         if (Settings.TargetedDatabase == TargetedDatabase.WrathOfTheLichKing || Settings.TargetedDatabase == TargetedDatabase.Cataclysm)
                         {
                             broadcastText.ConditionID = 0;
@@ -320,14 +321,14 @@ namespace WowPacketParser.SQL
             }
         }
 
-        public static CreatureTemplateDifficultyWDB CheckCreatureTemplateDifficultyWDBFallbacks(CreatureTemplateDifficultyWDB sniffData, uint difficulty)
+        public static CreatureTemplateDifficultyWDB CheckCreatureTemplateDifficultyWDBFallbacks(CreatureTemplateDifficultyWDB sniffData, uint? difficulty)
         {
-            // if db disabled/empty simply return sniff data
-            if (CreatureTemplateDifficultyWDBData.Count == 0)
+            // if db disabled/empty or difficulty information is not known simply return sniff data
+            if (CreatureTemplateDifficultyWDBData.Count == 0 || difficulty == null)
                 return sniffData;
 
             // entry with same difficulty already exists
-            if (CreatureTemplateDifficultyWDBData.TryGetValue((sniffData.Entry.Value, difficulty), out var dbData))
+            if (CreatureTemplateDifficultyWDBData.TryGetValue((sniffData.Entry.Value, difficulty.Value), out var dbData))
             {
                 // data is equal, return sniffData to update
                 if (sniffData.WDBEqualsSkipDifficultySkipHealthScalingExpansion(dbData))

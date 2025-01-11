@@ -81,6 +81,7 @@ using WowPacketParser.Enums.Version.V10_2_7_54577;
 using WowPacketParser.Enums.Version.V11_0_0_55666;
 using WowPacketParser.Enums.Version.V11_0_2_55959;
 using WowPacketParser.Enums.Version.V11_0_5_57171;
+using WowPacketParser.Enums.Version.V11_0_7_58123;
 using WowPacketParser.Misc;
 using WowPacketParser.Enums.Version.V1_15_4_56738;
 using WowPacketParser.Enums.Version.V1_15_3_55515;
@@ -740,6 +741,12 @@ namespace WowPacketParser.Enums.Version
                 case ClientVersionBuild.V11_0_5_57637:
                 case ClientVersionBuild.V11_0_5_57689:
                     return ClientVersionBuild.V11_0_5_57171;
+                case ClientVersionBuild.V11_0_7_58123:
+                case ClientVersionBuild.V11_0_7_58162:
+                case ClientVersionBuild.V11_0_7_58187:
+                case ClientVersionBuild.V11_0_7_58238:
+                case ClientVersionBuild.V11_0_7_58533:
+                    return ClientVersionBuild.V11_0_7_58123;
                 case ClientVersionBuild.V1_13_2_31446:
                 case ClientVersionBuild.V1_13_2_31650:
                 case ClientVersionBuild.V1_13_2_31687:
@@ -998,6 +1005,7 @@ namespace WowPacketParser.Enums.Version
                 case ClientVersionBuild.V4_4_1_57359:
                 case ClientVersionBuild.V4_4_1_57564:
                 case ClientVersionBuild.V4_4_1_57916:
+                case ClientVersionBuild.V4_4_1_58158:
                     return ClientVersionBuild.V4_4_1_57294;
                 default:
                     return ClientVersionBuild.V3_3_5a_12340;
@@ -1143,6 +1151,8 @@ namespace WowPacketParser.Enums.Version
                     return Opcodes_11_0_2.Opcodes(direction);
                 case ClientVersionBuild.V11_0_5_57171:
                     return Opcodes_11_0_5.Opcodes(direction);
+                case ClientVersionBuild.V11_0_7_58123:
+                    return Opcodes_11_0_7.Opcodes(direction);
 
                 case ClientVersionBuild.V1_13_2_31446:
                     return Opcodes_1_13_2.Opcodes(direction);
