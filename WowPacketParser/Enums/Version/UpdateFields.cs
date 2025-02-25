@@ -927,6 +927,14 @@ namespace WowPacketParser.Enums.Version
                 case ClientVersionBuild.V11_0_7_58187:
                 case ClientVersionBuild.V11_0_7_58238:
                 case ClientVersionBuild.V11_0_7_58533:
+                case ClientVersionBuild.V11_0_7_58608:
+                case ClientVersionBuild.V11_0_7_58630:
+                case ClientVersionBuild.V11_0_7_58680:
+                case ClientVersionBuild.V11_0_7_58773:
+                case ClientVersionBuild.V11_0_7_58867:
+                case ClientVersionBuild.V11_0_7_58911:
+                case ClientVersionBuild.V11_0_7_59207:
+                case ClientVersionBuild.V11_0_7_59302:
                 {
                     return "V11_0_7_58123";
                 }
@@ -1076,6 +1084,22 @@ namespace WowPacketParser.Enums.Version
                 case ClientVersionBuild.V1_15_4_57134:
                 {
                     return "V1_15_4_56738";
+                }
+                case ClientVersionBuild.V1_15_5_57638:
+                case ClientVersionBuild.V1_15_5_57716:
+                case ClientVersionBuild.V1_15_5_57807:
+                case ClientVersionBuild.V1_15_5_57917:
+                case ClientVersionBuild.V1_15_5_57979:
+                case ClientVersionBuild.V1_15_5_58534:
+                case ClientVersionBuild.V1_15_5_58555:
+                {
+                    return "V1_15_5_57638";
+                }
+                case ClientVersionBuild.V1_15_6_58797:
+                case ClientVersionBuild.V1_15_6_58844:
+                case ClientVersionBuild.V1_15_6_58866:
+                {
+                    return "V1_15_6_58797";
                 }
                 case ClientVersionBuild.V2_5_1_38598:
                 case ClientVersionBuild.V2_5_1_38644:
@@ -1228,6 +1252,8 @@ namespace WowPacketParser.Enums.Version
                 case ClientVersionBuild.V4_4_1_57564:
                 case ClientVersionBuild.V4_4_1_57916:
                 case ClientVersionBuild.V4_4_1_58158:
+                case ClientVersionBuild.V4_4_1_58558:
+                case ClientVersionBuild.V4_4_1_59069:
                 {
                     return "V4_4_1_57359";
                 }

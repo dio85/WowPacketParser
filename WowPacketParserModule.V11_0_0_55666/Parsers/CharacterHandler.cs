@@ -181,7 +181,22 @@ namespace WowPacketParserModule.V11_0_0_55666.Parsers
 
             for (var i = 0u; i < raceUnlockCount; ++i)
                 V7_0_3_22248.Parsers.CharacterHandler.ReadRaceUnlockData(packet, i, "RaceUnlockData");
+        }
 
+        [Parser(Opcode.CMSG_STAND_STATE_CHANGE, ClientVersionBuild.V11_0_7_58123)]
+        public static void HandleStandStateChange(Packet packet)
+        {
+            packet.ReadByteE<StandState>("StandState");
+        }
+
+        [Parser(Opcode.CMSG_REQUEST_STORE_FRONT_INFO_UPDATE)]
+        public static void HandleRequestStoreFrontInfoUpdate(Packet packet)
+        {
+            packet.ReadUInt32("StoreFrontID");
+
+            var count = packet.ReadUInt32("CurrencyCount");
+            for (var i = 0; i < count; ++i)
+                packet.ReadInt32<CurrencyId>("CurrencyID", i);
         }
     }
 }
