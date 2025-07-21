@@ -181,6 +181,9 @@ namespace WowPacketParserModule.V11_0_0_55666.Parsers
                             if (vendorFragment >= 0 && changedFragments[vendorFragment])
                                 if (!WowCSUtilities.IsIndirect(WowCSEntityFragments.FVendor_C) || changedFragments[vendorFragment + 1])
                                     handler.ReadUpdateVendorData(fieldsData, i);
+
+                            if (fieldsData.Position != fieldsData.Length)
+                                packet.WriteLine($"Updatefields not fully read! Current position: {fieldsData.Position} Length: {fieldsData.Length} Bytes remaining: {fieldsData.Length - fieldsData.Position}");
                         }
                         updateObject.Updated.Add(new UpdateObject{Guid = guid, Values = updateValues, TextStartOffset = partWriter.StartOffset, TextLength = partWriter.Length, Text = partWriter.Text});
                         break;
@@ -294,6 +297,9 @@ namespace WowPacketParserModule.V11_0_0_55666.Parsers
                 if (obj.EntityFragments.Contains(WowCSEntityFragments.FVendor_C))
                     if (!WowCSUtilities.IsIndirect(WowCSEntityFragments.FVendor_C) || fieldsData.ReadBool("IndirectFragmentActive [FVendor_C]", index))
                         handler.ReadCreateVendorData(fieldsData, flags, index);
+
+                if (fieldsData.Position != fieldsData.Length)
+                    packet.WriteLine($"Updatefields not fully read! Current position: {fieldsData.Position} Length: {fieldsData.Length} Bytes remaining: {fieldsData.Length - fieldsData.Position}");
             }
 
             // If this is the second time we see the same object (same guid,
@@ -444,11 +450,22 @@ namespace WowPacketParserModule.V11_0_0_55666.Parsers
 
                 if (hasDriveStatus)
                 {
-                    packet.ResetBitReader();
-                    packet.ReadBit("Accelerating", index, "DriveStatus");
-                    packet.ReadBit("Drifting", index, "DriveStatus");
-                    packet.ReadSingle("Speed", index, "DriveStatus");
-                    packet.ReadSingle("MovementAngle", index, "DriveStatus");
+                    if (ClientVersion.AddedInVersion(ClientVersionBuild.V11_1_7_61491))
+                    {
+                        packet.ResetBitReader();
+                        packet.ReadSingle("Speed", index, "DriveStatus");
+                        packet.ReadSingle("MovementAngle", index, "DriveStatus");
+                        packet.ReadBit("Accelerating", index, "DriveStatus");
+                        packet.ReadBit("Drifting", index, "DriveStatus");
+                    }
+                    else
+                    {
+                        packet.ResetBitReader();
+                        packet.ReadBit("Accelerating", index, "DriveStatus");
+                        packet.ReadBit("Drifting", index, "DriveStatus");
+                        packet.ReadSingle("Speed", index, "DriveStatus");
+                        packet.ReadSingle("MovementAngle", index, "DriveStatus");
+                    }
                 }
 
                 movementUpdate.WalkSpeed = moveInfo.WalkSpeed = packet.ReadSingle("WalkSpeed", index) / 2.5f;
@@ -515,7 +532,7 @@ namespace WowPacketParserModule.V11_0_0_55666.Parsers
                         var hasSplineFilterKey = packet.ReadBit("HasSplineFilterKey", index);
                         var hasSpellEffectExtraData = packet.ReadBit("HasSpellEffectExtraData", index);
                         var hasJumpExtraData = packet.ReadBit("HasJumpExtraData", index);
-
+                        var hasTurnData = ClientVersion.AddedInVersion(ClientVersionBuild.V11_1_7_61491) && packet.ReadBit("HasTurnData", index);
                         var hasAnimationTierTransition = packet.ReadBit("HasAnimationTierTransition", index);
                         var hasUnknown901 = packet.ReadBit("Unknown901", index);
 
@@ -558,6 +575,9 @@ namespace WowPacketParserModule.V11_0_0_55666.Parsers
 
                         if (hasJumpExtraData)
                             moveData.Jump = V8_0_1_27101.Parsers.MovementHandler.ReadMonsterSplineJumpExtraData(packet, index);
+
+                        if (hasTurnData)
+                            V8_0_1_27101.Parsers.MovementHandler.ReadMonsterSplineTurnData(packet, index, "MonsterSplineTurnData");
 
                         if (hasAnimationTierTransition)
                         {
