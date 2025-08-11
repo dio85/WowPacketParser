@@ -1,6 +1,9 @@
-﻿using WowPacketParser.Enums;
+﻿using System;
+using WowPacketParser.Enums;
 using WowPacketParser.Misc;
 using WowPacketParser.Parsing;
+using WowPacketParser.Store;
+using WowPacketParser.Store.Objects;
 using CoreParsers = WowPacketParser.Parsing.Parsers;
 
 namespace WowPacketParserModule.V5_5_0_61735.Parsers
@@ -624,8 +627,211 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             packet.ReadUInt32("PromotionID");
         }
 
+        [Parser(Opcode.SMSG_SPECIAL_MOUNT_ANIM)]
+        public static void HandleSpecialMountAnim(Packet packet)
+        {
+            packet.ReadPackedGuid128("UnitGUID");
+            var spellVisualKitIdCount = packet.ReadUInt32("SpellVisualKitIdCount");
+            packet.ReadInt32("SequenceVariation");
+
+            for (var i = 0; i < spellVisualKitIdCount; i++)
+                packet.ReadUInt32("SpellVisualKitID", i);
+        }
+
+        [Parser(Opcode.SMSG_WHO_IS)]
+        public static void HandleWhoIsResponse(Packet packet)
+        {
+            var accNameLen = packet.ReadBits(11);
+            packet.ReadWoWString("AccountName", accNameLen);
+        }
+
+        [Parser(Opcode.SMSG_WEATHER)]
+        public static void HandleWeatherStatus(Packet packet)
+        {
+            WeatherState state = packet.ReadInt32E<WeatherState>("State");
+            float grade = packet.ReadSingle("Intensity");
+            Bit unk = packet.ReadBit("Abrupt"); // Type
+
+            Storage.WeatherUpdates.Add(new WeatherUpdate
+            {
+                MapId = CoreParsers.MovementHandler.CurrentMapId,
+                ZoneId = 0, // fixme
+                State = state,
+                Grade = grade,
+                Unk = unk
+            }, packet.TimeSpan);
+        }
+
+        [Parser(Opcode.SMSG_START_LIGHTNING_STORM)]
+        [Parser(Opcode.SMSG_END_LIGHTNING_STORM)]
+        public static void HandleLightningStorm(Packet packet)
+        {
+            packet.ReadUInt32("LightningStormId");
+        }
+
+        [Parser(Opcode.SMSG_OVERRIDE_LIGHT)]
+        public static void HandleOverrideLight(Packet packet)
+        {
+            packet.ReadUInt32("AreaLightID");
+            packet.ReadUInt32("OverrideLightID");
+            packet.ReadUInt32("TransitionMilliseconds");
+        }
+
+        [Parser(Opcode.SMSG_ENABLE_BARBER_SHOP)]
+        public static void HandleEnableBarberShop(Packet packet)
+        {
+            packet.ReadUInt32("CustomizationFeatureMask");
+        }
+
+        [Parser(Opcode.SMSG_CONFIRM_BARBERS_CHOICE)]
+        public static void HandleConfirmBarbersChoice(Packet packet)
+        {
+            packet.ReadUInt32("Cost");
+        }
+
+        [Parser(Opcode.SMSG_BARBER_SHOP_RESULT)]
+        public static void HandleBarberShopResult(Packet packet)
+        {
+            packet.ReadInt32E<BarberShopResult>("Result");
+            packet.ReadBit("IgnoreChair");
+        }
+
+        [Parser(Opcode.SMSG_RECRUIT_A_FRIEND_FAILURE)]
+        public static void HandleRaFFailure(Packet packet)
+        {
+            packet.ReadInt32("Reason");
+            packet.ResetBitReader();
+            var len = packet.ReadBits(6);
+            packet.ReadWoWString("Str", len);
+        }
+
+        [Parser(Opcode.SMSG_TRIGGER_MOVIE)]
+        public static void HandleTriggerMovie(Packet packet)
+        {
+            packet.ReadInt32("CinematicID");
+        }
+
+        [Parser(Opcode.SMSG_DEATH_RELEASE_LOC)]
+        public static void HandleDeathReleaseLoc(Packet packet)
+        {
+            packet.ReadInt32<MapId>("Map Id");
+            packet.ReadVector3("Position");
+        }
+
+        [Parser(Opcode.SMSG_PROPOSE_LEVEL_GRANT)]
+        public static void HandleGrantLevel(Packet packet)
+        {
+            packet.ReadPackedGuid128("GUID");
+        }
+
+        [Parser(Opcode.SMSG_SET_VEHICLE_REC_ID)]
+        public static void HandleSetVehicleRecID(Packet packet)
+        {
+            packet.ReadPackedGuid128("VehicleGUID");
+            packet.ReadInt32("VehicleRecID");
+        }
+
+        [Parser(Opcode.SMSG_START_MIRROR_TIMER)]
+        public static void HandleStartMirrorTimer(Packet packet)
+        {
+            packet.ReadByteE<MirrorTimerType>("Timer");
+            packet.ReadUInt32("Value");
+            packet.ReadUInt32("MaxValue");
+            packet.ReadInt32("Scale");
+            packet.ReadUInt32<SpellId>("SpellID");
+            packet.ReadBit("Paused");
+        }
+
+        [Parser(Opcode.SMSG_PAUSE_MIRROR_TIMER)]
+        public static void HandlePauseMirrorTimer(Packet packet)
+        {
+            packet.ReadByteE<MirrorTimerType>("Timer");
+            packet.ReadBit("Paused");
+        }
+
+        [Parser(Opcode.SMSG_STOP_MIRROR_TIMER)]
+        public static void HandleStopMirrorTimer(Packet packet)
+        {
+            packet.ReadByteE<MirrorTimerType>("Timer");
+        }
+
+        [Parser(Opcode.SMSG_SUMMON_REQUEST)]
+        public static void HandleSummonRequest(Packet packet)
+        {
+            packet.ReadPackedGuid128("SummonerGUID");
+            packet.ReadUInt32("SummonerVirtualRealmAddress");
+            packet.ReadInt32<AreaId>("AreaID");
+            packet.ReadByte("Reason");
+            packet.ResetBitReader();
+            packet.ReadBit("SkipStartingArea");
+        }
+
+        [Parser(Opcode.SMSG_REFER_A_FRIEND_EXPIRED)]
+        public static void HandleReferAFriendExpired(Packet packet)
+        {
+            packet.ReadPackedGuid128("Guid");
+        }
+
+        [Parser(Opcode.SMSG_SET_AI_ANIM_KIT)]
+        public static void SetAIAnimKitId(Packet packet)
+        {
+            var animKit = packet.Holder.SetAnimKit = new();
+            var guid = packet.ReadPackedGuid128("Unit");
+            var animKitID = packet.ReadUInt16("AnimKitID");
+
+            if (guid.GetObjectType() == ObjectType.Unit)
+                if (Storage.Objects.ContainsKey(guid))
+                {
+                    var timeSpan = Storage.Objects[guid].Item2 - packet.TimeSpan;
+                    if (timeSpan != null && timeSpan.Value.Duration() <= TimeSpan.FromSeconds(1))
+                        ((Unit)Storage.Objects[guid].Item1).AIAnimKit = animKitID;
+                }
+
+            animKit.Unit = guid;
+            animKit.AnimKit = animKitID;
+        }
+
+        [Parser(Opcode.SMSG_PLAY_ONE_SHOT_ANIM_KIT)]
+        public static void HandlePlayOneShotAnimKit(Packet packet)
+        {
+            var animKit = packet.Holder.OneShotAnimKit = new();
+            animKit.Unit = packet.ReadPackedGuid128("Unit");
+            animKit.AnimKit = packet.ReadUInt16("AnimKitID");
+        }
+
+        [Parser(Opcode.SMSG_SET_MOVEMENT_ANIM_KIT)]
+        public static void HandleSetMovementAnimKit(Packet packet)
+        {
+            packet.ReadPackedGuid128("Unit");
+            packet.ReadUInt16("AnimKitID");
+        }
+
+        [Parser(Opcode.SMSG_SET_MELEE_ANIM_KIT)]
+        public static void SetMeleeAnimKitId(Packet packet)
+        {
+            var guid = packet.ReadPackedGuid128("Unit");
+            var animKitID = packet.ReadUInt16("AnimKitID");
+
+            if (guid.GetObjectType() == ObjectType.Unit)
+                if (Storage.Objects.ContainsKey(guid))
+                {
+                    var timeSpan = Storage.Objects[guid].Item2 - packet.TimeSpan;
+                    if (timeSpan != null && timeSpan.Value.Duration() <= TimeSpan.FromSeconds(1))
+                        ((Unit)Storage.Objects[guid].Item1).MeleeAnimKit = animKitID;
+                }
+        }
+
+        [Parser(Opcode.SMSG_SET_ANIM_TIER)]
+        public static void HandleSetAnimTier(Packet packet)
+        {
+            packet.ReadPackedGuid128("Unit");
+            packet.ReadBits("Tier", 3);
+        }
+
         [Parser(Opcode.SMSG_CLEAR_RESURRECT)]
         [Parser(Opcode.SMSG_CLEAR_BOSS_EMOTES)]
+        [Parser(Opcode.SMSG_FISH_NOT_HOOKED)]
+        [Parser(Opcode.SMSG_FISH_ESCAPED)]
         public static void HandleMiscZero(Packet packet)
         {
         }

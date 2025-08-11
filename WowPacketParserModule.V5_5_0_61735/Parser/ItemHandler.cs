@@ -120,5 +120,74 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
 
             Substructures.ItemHandler.ReadItemInstance(packet);
         }
+
+        [Parser(Opcode.SMSG_CROSSED_INEBRIATION_THRESHOLD)]
+        public static void HandleCrossedInebriationThreshold(Packet packet)
+        {
+            packet.ReadPackedGuid128("Guid");
+            packet.ReadInt32("Threshold");
+            packet.ReadInt32<ItemId>("ItemID");
+        }
+
+        [Parser(Opcode.SMSG_SELL_RESPONSE)]
+        public static void HandleSellResponse(Packet packet)
+        {
+            packet.ReadPackedGuid128("VendorGUID");
+            var itemGuidCount = packet.ReadUInt32("ItemGuidCount");
+
+            packet.ReadInt32E<SellResult>("Reason");
+
+            for (var i = 0; i < itemGuidCount; ++i)
+                packet.ReadPackedGuid128("ItemGuid", i);
+        }
+
+        [Parser(Opcode.SMSG_BUY_SUCCEEDED)]
+        public static void HandleBuyItemResponse(Packet packet)
+        {
+            packet.ReadPackedGuid128("VendorGUID");
+            packet.ReadUInt32("Muid");
+            packet.ReadInt32("NewQuantity");
+            packet.ReadUInt32("QuantityBought");
+        }
+
+        [Parser(Opcode.SMSG_BUY_FAILED)]
+        public static void HandleBuyFailed(Packet packet)
+        {
+            packet.ReadPackedGuid128("VendorGUID");
+            packet.ReadUInt32<ItemId>("Muid");
+            packet.ReadInt32E<BuyResult>("Reason");
+        }
+
+        [Parser(Opcode.SMSG_ITEM_CHANGED)]
+        public static void HandleItemChanged(Packet packet)
+        {
+            packet.ReadPackedGuid128("Player");
+            Substructures.ItemHandler.ReadItemInstance(packet, "ItemInstanceBefore");
+            Substructures.ItemHandler.ReadItemInstance(packet, "ItemInstanceAfter");
+        }
+
+        [Parser(Opcode.SMSG_ENCHANTMENT_LOG)]
+        public static void HandleEnchantmentLog(Packet packet)
+        {
+            packet.ReadPackedGuid128("Owner");
+            packet.ReadPackedGuid128("Caster");
+            packet.ReadPackedGuid128("ItemGUID");
+            packet.ReadUInt32<ItemId>("ItemID");
+            packet.ReadUInt32("Enchantment");
+            packet.ReadUInt32("EnchantSlot");
+        }
+
+        [Parser(Opcode.SMSG_SOCKET_GEMS_SUCCESS)]
+        public static void HandleSocketGemsSuccess(Packet packet)
+        {
+            packet.ReadPackedGuid128("Item");
+        }
+
+        [Parser(Opcode.SMSG_SET_PROFICIENCY)]
+        public static void HandleSetProficency(Packet packet)
+        {
+            packet.ReadUInt32E<UnknownFlags>("ProficiencyMask");
+            packet.ReadByteE<ItemClass>("ProficiencyClass");
+        }
     }
 }
