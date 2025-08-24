@@ -622,6 +622,7 @@ namespace WowPacketParser.Enums
         V11_2_0_62493 = 62493,
         V11_2_0_62680 = 62680,
         V11_2_0_62706 = 62706,
+        V11_2_0_62748 = 62748,
 
         // Classic
         V1_13_2_31446 = 31446,
@@ -963,6 +964,7 @@ namespace WowPacketParser.Enums
         V5_5_0_62258 = 62258, // live
         V5_5_0_62422 = 62422, // both live and ptr
         V5_5_0_62518 = 62518, // live
+        V5_5_0_62655 = 62655, // live
 
         // Battle.net - should probably not mix this but oh well
         BattleNetV37165 = 37165,
