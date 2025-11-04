@@ -265,5 +265,12 @@ namespace WowPacketParserModule.V11_0_0_55666.Parsers
             packet.ReadUInt32("CurrentCooldown");
             packet.ReadBit("OnCooldown");
         }
+
+        [Parser(Opcode.CMSG_SETUP_WARBAND_GROUPS, ClientVersionBuild.V11_0_0_55666)]
+        public static void HandleSetupWarbandGroups(Packet packet)
+        {
+            packet.ReadBits("GroupCount", 5);
+            ReadWarbandGroup(packet);
+        }
     }
 }
