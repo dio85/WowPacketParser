@@ -49,7 +49,7 @@ namespace WowPacketParserModule.Substructures
 
         public static void ReadDungeonScoreSummary(Packet packet, params object[] indexes)
         {
-            if (ClientVersion.IsMoPClassicClientVersionBuild(ClientVersion.Build))
+            if (ClientVersion.IsMoPClassicClientVersionBuild(ClientVersion.Build) || ClientVersion.IsSeasonOfDiscoveryClientVersionBuild(ClientVersion.Build))
                 ReadDungeonScoreSummary550(packet, indexes);
             else
             {
