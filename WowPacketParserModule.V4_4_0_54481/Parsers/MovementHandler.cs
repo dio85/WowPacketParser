@@ -1,6 +1,4 @@
 ﻿using Google.Protobuf.WellKnownTypes;
-using System;
-using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using WowPacketParser.DBC;
 using WowPacketParser.Enums;
@@ -8,9 +6,7 @@ using WowPacketParser.Enums.Version;
 using WowPacketParser.Misc;
 using WowPacketParser.Parsing;
 using WowPacketParser.Proto;
-using WowPacketParser.SQL.Builders;
-using WowPacketParser.Store;
-using WowPacketParserModule.V7_0_3_22248.Enums;
+using static WowPacketParserModule.V7_0_3_22248.Enums.ProtoExtensions;
 using CoreParsers = WowPacketParser.Parsing.Parsers;
 using SplineFacingType = WowPacketParserModule.V6_0_2_19033.Enums.SplineFacingType;
 using SplineFlag = WowPacketParserModule.V7_0_3_22248.Enums.SplineFlag;
@@ -243,9 +239,7 @@ namespace WowPacketParserModule.V4_4_0_54481.Parsers
                 ReadMonsterSplineSpellEffectExtraData(packet, indexes, "MonsterSplineSpellEffectExtra");
 
             if (hasJumpExtraData)
-            {
                 monsterMove.Jump = ReadMonsterSplineJumpExtraData(packet, indexes, "MonsterSplineJumpExtraData");
-            }
 
             if (hasAnimTier)
             {
@@ -256,10 +250,7 @@ namespace WowPacketParserModule.V4_4_0_54481.Parsers
             }
 
             if (endpos.X != 0 && endpos.Y != 0 && endpos.Z != 0)
-            {
-                packet.AddValue("Computed Distance", distance, indexes);
-                packet.AddValue("Computed Speed", (distance / monsterMove.MoveTime) * 1000, indexes);
-            }
+                WowPacketParser.Parsing.Parsers.MovementHandler.PrintComputedSplineMovementParams(packet, distance, monsterMove, indexes);
         }
 
         public static void ReadMovementMonsterSpline(Packet packet, Vector3 pos, params object[] indexes)

@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using WowPacketParser.DBC;
 using WowPacketParser.Enums;
 using WowPacketParser.Misc;
 using WowPacketParser.Parsing;
 using WowPacketParser.Proto;
-using WowPacketParserModule.V7_0_3_22248.Enums;
+using static WowPacketParserModule.V7_0_3_22248.Enums.ProtoExtensions;
 using CoreParsers = WowPacketParser.Parsing.Parsers;
-using MovementFlag = WowPacketParser.Enums.v4.MovementFlag;
-using MovementFlag2 = WowPacketParser.Enums.v7.MovementFlag2;
 using SplineFacingType = WowPacketParserModule.V6_0_2_19033.Enums.SplineFacingType;
 using SplineFlag = WowPacketParserModule.V7_0_3_22248.Enums.SplineFlag;
 
@@ -157,10 +153,7 @@ namespace WowPacketParserModule.V7_0_3_22248.Parsers
                 ReadMonsterSplineSpellEffectExtraData(packet, "MonsterSplineSpellEffectExtra");
 
             if (endpos.X != 0 && endpos.Y != 0 && endpos.Z != 0)
-            {
-                packet.AddValue("Computed Distance", distance, indexes);
-                packet.AddValue("Computed Speed", (distance / monsterMove.MoveTime) * 1000, indexes);
-            }
+                WowPacketParser.Parsing.Parsers.MovementHandler.PrintComputedSplineMovementParams(packet, distance, monsterMove, indexes);
         }
 
         [Parser(Opcode.SMSG_ON_MONSTER_MOVE)]
