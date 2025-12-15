@@ -7,11 +7,11 @@ using WowPacketParser.Parsing;
 using WowPacketParser.Proto;
 using WowPacketParser.Store;
 using WowPacketParser.Store.Objects;
-using WowPacketParserModule.V7_0_3_22248.Enums;
+using WowPacketParserModule.V6_0_2_19033.Enums;
 using CoreParsers = WowPacketParser.Parsing.Parsers;
 using MovementFlag = WowPacketParser.Enums.v4.MovementFlag;
 using MovementFlag2 = WowPacketParser.Enums.v7.MovementFlag2;
-using SplineFlag = WowPacketParserModule.V7_0_3_22248.Enums.SplineFlag;
+using SplineFlag = WowPacketParserModule.V6_0_2_19033.Enums.SplineFlag;
 
 namespace WowPacketParserModule.V7_0_3_22248.Parsers
 {
@@ -297,12 +297,7 @@ namespace WowPacketParserModule.V7_0_3_22248.Parsers
                             splineMove.Points.Add(packet.ReadVector3("Points", index, i));
 
                         if (hasSpellEffectExtraData)
-                        {
-                            packet.ReadPackedGuid128("TargetGUID", index);
-                            packet.ReadUInt32("SpellVisualID", index);
-                            packet.ReadUInt32("ProgressCurveID", index);
-                            packet.ReadUInt32("ParabolicCurveID", index);
-                        }
+                            MovementHandler.ReadMonsterSplineSpellEffectExtraData(packet, index);
                     }
                 }
             }

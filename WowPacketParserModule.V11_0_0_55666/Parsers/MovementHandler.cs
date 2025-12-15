@@ -3,8 +3,7 @@ using WowPacketParser.Misc;
 using WowPacketParser.Parsing;
 using WowPacketParser.Proto;
 using WowPacketParserModule.V6_0_2_19033.Enums;
-using static WowPacketParserModule.V7_0_3_22248.Enums.ProtoExtensions;
-using SplineFlag = WowPacketParserModule.V7_0_3_22248.Enums.SplineFlag;
+using SplineFlag = WowPacketParserModule.V6_0_2_19033.Enums.SplineFlag;
 
 namespace WowPacketParserModule.V11_0_0_55666.Parsers
 {
@@ -108,7 +107,7 @@ namespace WowPacketParserModule.V11_0_0_55666.Parsers
             }
 
             if (hasSpellEffectExtraData)
-                V8_0_1_27101.Parsers.MovementHandler.ReadMonsterSplineSpellEffectExtraData(packet, indexes, "MonsterSplineSpellEffectExtra");
+                monsterMove.SpellEffect = V8_0_1_27101.Parsers.MovementHandler.ReadMonsterSplineSpellEffectExtraData(packet, indexes, "MonsterSplineSpellEffectExtra");
 
             if (hasJumpExtraData)
                 monsterMove.Jump = V8_0_1_27101.Parsers.MovementHandler.ReadMonsterSplineJumpExtraData(packet, indexes, "MonsterSplineJumpExtraData");
@@ -119,7 +118,7 @@ namespace WowPacketParserModule.V11_0_0_55666.Parsers
             if (hasAnimTier)
             {
                 packet.ReadInt32("TierTransitionID", indexes);
-                packet.ReadByte("AnimTier", indexes);
+                monsterMove.AnimTier = packet.ReadByte("AnimTier", indexes);
                 packet.ReadUInt32("StartTime", indexes);
                 packet.ReadUInt32("EndTime", indexes);
             }

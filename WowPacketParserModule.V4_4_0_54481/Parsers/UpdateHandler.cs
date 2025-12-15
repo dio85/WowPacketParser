@@ -10,12 +10,12 @@ using WowPacketParser.Proto;
 using WowPacketParser.Store;
 using WowPacketParser.Store.Objects;
 using WowPacketParser.Store.Objects.UpdateFields;
-using WowPacketParserModule.V7_0_3_22248.Enums;
+using WowPacketParserModule.V6_0_2_19033.Enums;
 using CoreFields = WowPacketParser.Enums.Version;
 using CoreParsers = WowPacketParser.Parsing.Parsers;
 using MovementFlag = WowPacketParser.Enums.v4.MovementFlag;
 using MovementFlag2 = WowPacketParser.Enums.v7.MovementFlag2;
-using SplineFlag = WowPacketParserModule.V7_0_3_22248.Enums.SplineFlag;
+using SplineFlag = WowPacketParserModule.V6_0_2_19033.Enums.SplineFlag;
 
 namespace WowPacketParserModule.V4_4_0_54481.Parsers
 {
@@ -953,7 +953,7 @@ namespace WowPacketParserModule.V4_4_0_54481.Parsers
                             WoWObject obj;
                             Storage.Objects.TryGetValue(guid, out obj);
 
-                            var fragments = obj != null ? obj.EntityFragments : [WowCSEntityFragments.CGObject];
+                            var fragments = obj != null ? obj.EntityFragments : [new WowCSEntityFragment(WowCSEntityFragments1100.CGObject)];
 
                             fieldsData.ReadBool("IsOwned", i);
                             if (fieldsData.ReadBool("HasFragmentUpdates", i))
@@ -977,11 +977,11 @@ namespace WowPacketParserModule.V4_4_0_54481.Parsers
                             var fragmentBitCount = 0;
                             foreach (var existingFragment in fragments)
                             {
-                                if (!WowCSUtilities.IsUpdateable(existingFragment))
+                                if (!WowCSUtilities.IsUpdateable(existingFragment.UniversalValue))
                                     continue;
 
                                 ++fragmentBitCount;
-                                if (WowCSUtilities.IsIndirect(existingFragment))
+                                if (WowCSUtilities.IsIndirect(existingFragment.UniversalValue))
                                     ++fragmentBitCount;
                             }
 
@@ -1057,7 +1057,7 @@ namespace WowPacketParserModule.V4_4_0_54481.Parsers
                                 }
                             }
                             else
-                                obj?.EntityFragments.Remove(WowCSEntityFragments.CGObject);
+                                obj?.EntityFragments.RemoveAll(f => f.UniversalValue == WowCSEntityFragments.CGObject);
 
                             var vendorFragment = WowCSUtilities.GetUpdateBitIndex(fragments, WowCSEntityFragments.FVendor_C);
                             if (vendorFragment >= 0 && changedFragments[vendorFragment])
@@ -1083,12 +1083,12 @@ namespace WowPacketParserModule.V4_4_0_54481.Parsers
             }
         }
 
-        private static List<WowCSEntityFragments> ReadEntityFragments(Packet packet, string name, int idx)
+        private static List<WowCSEntityFragment> ReadEntityFragments(Packet packet, string name, int idx)
         {
-            var fragmentIds = new List<WowCSEntityFragments>();
-            WowCSEntityFragments fragmentId;
-            while ((fragmentId = packet.ReadByteE<WowCSEntityFragments>()) != WowCSEntityFragments.End)
-                fragmentIds.Add(packet.AddValue(name, fragmentId, idx, fragmentIds.Count));
+            var fragmentIds = new List<WowCSEntityFragment>();
+            WowCSEntityFragments1100 fragmentId;
+            while ((fragmentId = packet.ReadByteE<WowCSEntityFragments1100>()) != WowCSEntityFragments1100.End)
+                fragmentIds.Add(new WowCSEntityFragment(packet.AddValue(name, fragmentId, idx, fragmentIds.Count)));
 
             return fragmentIds;
         }
@@ -1109,7 +1109,7 @@ namespace WowPacketParserModule.V4_4_0_54481.Parsers
                 var flags = fieldsData.ReadByteE<UpdateFieldFlag>("FieldFlags", index);
                 obj.EntityFragments = ReadEntityFragments(fieldsData, "EntityFragmentID", index);
                 var handler = CoreFields.UpdateFields.GetHandler();
-                if (obj.EntityFragments.Contains(WowCSEntityFragments.CGObject))
+                if (obj.EntityFragments.Exists(f => f.UniversalValue == WowCSEntityFragments.CGObject))
                 {
                     if (fieldsData.ReadBool("IndirectFragmentActive [CGObject]", index))
                     {
@@ -1171,9 +1171,9 @@ namespace WowPacketParserModule.V4_4_0_54481.Parsers
                         }
                     }
                     else
-                        obj.EntityFragments.Remove(WowCSEntityFragments.CGObject);
+                        obj.EntityFragments.RemoveAll(f => f.UniversalValue == WowCSEntityFragments.CGObject);
                 }
-                if (obj.EntityFragments.Contains(WowCSEntityFragments.FVendor_C))
+                if (obj.EntityFragments.Exists(f => f.UniversalValue == WowCSEntityFragments.FVendor_C))
                     if (!WowCSUtilities.IsIndirect(WowCSEntityFragments.FVendor_C) || fieldsData.ReadBool("IndirectFragmentActive [FVendor_C]", index))
                         handler.ReadCreateVendorData(fieldsData, flags, index);
             }
@@ -1337,7 +1337,7 @@ namespace WowPacketParserModule.V4_4_0_54481.Parsers
                         var moveData = splineData.MoveData = new();
                         packet.ResetBitReader();
 
-                        moveData.Flags = packet.ReadUInt32E<V7_0_3_22248.Enums.SplineFlag>("SplineFlags", index).ToUniversal();
+                        moveData.Flags = packet.ReadUInt32E<SplineFlag>("SplineFlags", index).ToUniversal();
                         moveData.Elapsed = packet.ReadInt32("Elapsed", index);
                         moveData.Duration = packet.ReadUInt32("Duration", index);
                         moveData.DurationModifier = packet.ReadSingle("DurationModifier", index);
