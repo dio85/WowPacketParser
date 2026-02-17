@@ -765,9 +765,141 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             packet.ReadBool("Showing");
         }
 
+        [Parser(Opcode.CMSG_GENERATE_RANDOM_CHARACTER_NAME)]
+        public static void HandleGenerateRandomCharacterNameQuery(Packet packet)
+        {
+            packet.ReadByteE<Race>("Race");
+            packet.ReadSByteE<Gender>("Sex");
+        }
+
+        [Parser(Opcode.CMSG_REORDER_CHARACTERS)]
+        public static void HandleReorderCharacters(Packet packet)
+        {
+            var count = packet.ReadBits("CharactersCount", 9);
+
+            for (var i = 0; i < count; ++i)
+            {
+                packet.ReadPackedGuid128("PlayerGUID");
+                packet.ReadByte("NewPosition", i);
+            }
+        }
+
+        [Parser(Opcode.CMSG_MOUNT_SET_FAVORITE)]
+        public static void HandleMountSetFavorite(Packet packet)
+        {
+            packet.ReadInt32("MountSpellID");
+            packet.ReadBit("IsFavorite");
+        }
+
+        [Parser(Opcode.CMSG_CREATE_CHARACTER)]
+        public static void HandleClientCharCreate(Packet packet)
+        {
+            var nameLen = packet.ReadBits(6);
+            var hasTemplateSet = packet.ReadBit("HasTemplateSet");
+            packet.ReadBit("IsTrialBoost");
+            packet.ReadBit("UseNPE");
+            packet.ReadBit("HardcoreSelfFound");
+            packet.ResetBitReader();
+
+            packet.ReadByteE<Race>("RaceID");
+            packet.ReadByteE<Class>("ClassID");
+            packet.ReadByteE<Gender>("SexID");
+
+            var customizationCount = packet.ReadUInt32();
+            packet.ReadInt32("TimerunningSeasonID");
+
+            packet.ReadWoWString("Name", nameLen);
+
+            if (hasTemplateSet)
+                packet.ReadInt32("TemplateSetID");
+
+            for (var i = 0u; i < customizationCount; ++i)
+                ReadChrCustomizationChoice(packet, "Customizations", i);
+        }
+
+        [Parser(Opcode.CMSG_SET_PLAYER_DECLINED_NAMES)]
+        public static void HandleSetPlayerDeclinedNames(Packet packet)
+        {
+            packet.ReadPackedGuid128("Player");
+
+            var count = new int[5];
+            for (var i = 0; i < 5; ++i)
+                count[i] = (int)packet.ReadBits(7);
+
+            for (var i = 0; i < 5; ++i)
+                packet.ReadWoWString("DeclinedName", count[i], i);
+        }
+
+        [Parser(Opcode.CMSG_CHAR_CUSTOMIZE)]
+        public static void HandleClientCharCustomize(Packet packet)
+        {
+            packet.ReadPackedGuid128("CharGUID");
+
+            packet.ReadByte("SexID");
+            var customizationCount = packet.ReadUInt32("CustomizationCount");
+
+            for (var j = 0u; j < customizationCount; ++j)
+                ReadChrCustomizationChoice(packet, "Customizations", j);
+
+            packet.ResetBitReader();
+            var nameLen = packet.ReadBits(6);
+            packet.ReadWoWString("CharName", nameLen);
+        }
+
+        [Parser(Opcode.CMSG_CHAR_RACE_OR_FACTION_CHANGE)]
+        public static void HandleCharRaceOrFactionChange(Packet packet)
+        {
+            packet.ReadBit("FactionChange");
+
+            var nameLen = packet.ReadBits(6);
+
+            packet.ReadPackedGuid128("Guid");
+            packet.ReadByte("SexID");
+            packet.ReadByteE<Race>("RaceID");
+            packet.ReadByteE<Race>("InitialRaceID");
+            var customizationsCount = packet.ReadUInt32("CustomizationsCount");
+            packet.ReadWoWString("Name", nameLen);
+
+            for (var i = 0; i < customizationsCount; i++)
+                ReadChrCustomizationChoice(packet, "Customizations", i);
+        }
+
+        [Parser(Opcode.CMSG_CHAR_DELETE)]
+        public static void HandleClientCharDelete(Packet packet)
+        {
+            packet.ReadPackedGuid128("PlayerGUID");
+        }
+
+        [Parser(Opcode.CMSG_INSPECT_PVP)]
+        public static void HandleRequestInspectPVP(Packet packet)
+        {
+            packet.ReadPackedGuid128("InspectTarget");
+        }
+
+        [Parser(Opcode.CMSG_CHARACTER_RENAME_REQUEST)]
+        public static void HandleClientCharRename(Packet packet)
+        {
+            packet.ReadPackedGuid128("Guid");
+
+            packet.ResetBitReader();
+
+            var newNameLen = packet.ReadBits(6);
+            packet.ReadWoWString("NewName", newNameLen);
+        }
+
+        [Parser(Opcode.CMSG_UNDELETE_CHARACTER)]
+        public static void HandleUndeleteCharacter(Packet packet)
+        {
+            packet.ReadInt32("ClientToken");
+            packet.ReadPackedGuid128("CharacterGuid");
+        }
+
         [Parser(Opcode.SMSG_PLAYER_CHOICE_CLEAR)]
         [Parser(Opcode.SMSG_SHOW_NEUTRAL_PLAYER_FACTION_SELECT_UI)]
         [Parser(Opcode.CMSG_CONFIRM_BARBERS_CHOICE)]
+        [Parser(Opcode.CMSG_ENUM_CHARACTERS)]
+        [Parser(Opcode.CMSG_ENUM_CHARACTERS_DELETED_BY_CLIENT)]
+        [Parser(Opcode.CMSG_GET_UNDELETE_CHARACTER_COOLDOWN_STATUS)]
         public static void HandleCharacterEmpty(Packet packet)
         {
         }

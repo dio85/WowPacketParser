@@ -118,6 +118,7 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
         }
 
         [Parser(Opcode.SMSG_SET_DUNGEON_DIFFICULTY)]
+        [Parser(Opcode.CMSG_SET_DUNGEON_DIFFICULTY)]
         public static void HandleSetDungeonDifficulty(Packet packet)
         {
             packet.ReadInt32<DifficultyId>("DifficultyID");
@@ -151,6 +152,7 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
         }
 
         [Parser(Opcode.SMSG_RAID_DIFFICULTY_SET)]
+        [Parser(Opcode.CMSG_SET_RAID_DIFFICULTY)]
         public static void HandleSetRaidDifficulty(Packet packet)
         {
             packet.ReadInt32("Legacy");
@@ -234,10 +236,19 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             packet.ReadBool("Accept");
         }
 
+        [Parser(Opcode.CMSG_SET_SAVED_INSTANCE_EXTEND)]
+        public static void HandleSetSavedInstanceExtend(Packet packet)
+        {
+            packet.ReadInt32<MapId>("MapID");
+            packet.ReadUInt32<DifficultyId>("DifficultyID");
+            packet.ReadBit("Extended");
+        }
+
         [Parser(Opcode.SMSG_RESET_FAILED_NOTIFY)]
         [Parser(Opcode.SMSG_INSTANCE_ENCOUNTER_END)]
         [Parser(Opcode.SMSG_INSTANCE_ENCOUNTER_IN_COMBAT_RESURRECTION)]
         [Parser(Opcode.SMSG_INSTANCE_ENCOUNTER_PHASE_SHIFT_CHANGED)]
+        [Parser(Opcode.CMSG_RESET_INSTANCES)]
         public static void HandleInstanceZero(Packet packet)
         {
         }

@@ -48,8 +48,8 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             packet.ReadUInt32("TransportID", idx);
             packet.ReadSingle("Magnitude", idx);
             packet.ReadInt32("MovementForceID", idx);
-            packet.ReadInt32("Unknown1110_1", idx);
-            packet.ReadInt32("Unknown1110_2", idx);
+            packet.ReadInt32("DurationMs", idx);
+            packet.ReadUInt32("EndTimestamp", idx);
             packet.ReadUInt32("Flags", idx);
 
             packet.ResetBitReader();
@@ -1164,7 +1164,15 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             packet.ReadSingle("SpeedMax");
         }
 
+        [Parser(Opcode.CMSG_SUMMON_RESPONSE)]
+        public static void HandleSummonResponse(Packet packet)
+        {
+            packet.ReadPackedGuid128("SummonerGUID");
+            packet.ReadBit("Accept");
+        }
+
         [Parser(Opcode.SMSG_ABORT_NEW_WORLD)]
+        [Parser(Opcode.CMSG_WORLD_PORT_RESPONSE)]
         public static void HandleMovementZero(Packet packet)
         {
         }

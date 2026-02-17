@@ -59,6 +59,22 @@ namespace WowPacketParserModule.V11_0_0_55666.Parsers
                 var partWriter = new StringBuilderProtoPart(packet.Writer);
                 packet.AddValue("UpdateType", type.ToString(), i);
                 var guid = packet.ReadPackedGuid128("Object Guid", i);
+
+                if (type == UpdateTypeCataclysm.CreateObject1 && ClientVersion.AddedInVersion(ClientType.Midnight))
+                {
+                    var packetTimestamp = Utilities.GetUnixTimeFromDateTime(packet.Time);
+
+                    var spawnTimestamp = packetTimestamp & ~((1 << 23) - 1);
+                    spawnTimestamp += guid.GetSpawnTimestamp() + 3600; // spawn timestamps are off by 1h
+
+                    var timestampDiff = Math.Abs(spawnTimestamp - packetTimestamp);
+                    if (timestampDiff <= Settings.TreatAsCreateObject2Tolerance && !Storage.Objects.ContainsKey(guid))
+                        type = UpdateTypeCataclysm.CreateObject2;
+
+                    packet.AddValue("TreatAsCreateObject2", (type == UpdateTypeCataclysm.CreateObject2), i);
+                    packet.AddValue("TimestampDiff", timestampDiff, i);
+                }
+
                 switch (type)
                 {
                     case UpdateTypeCataclysm.Values:
@@ -219,6 +235,7 @@ namespace WowPacketParserModule.V11_0_0_55666.Parsers
                     case WowCSEntityFragments.PlayerHouseInfoComponent_C: handler.ReadCreatePlayerHouseInfoComponentData(fieldsData, flags, index); break;
                     case WowCSEntityFragments.FHousingStorage_C: handler.ReadCreateHousingStorageData(fieldsData, flags, index); break;
                     case WowCSEntityFragments.FHousingFixture_C: handler.ReadCreateHousingFixtureData(fieldsData, flags, index); break;
+                    case WowCSEntityFragments.PlayerInitiativeComponent_C: handler.ReadCreatePlayerInitiativeComponentData(fieldsData, flags, index); break;
                 }
             }
         }
@@ -339,6 +356,7 @@ namespace WowPacketParserModule.V11_0_0_55666.Parsers
                     case WowCSEntityFragments.PlayerHouseInfoComponent_C: handler.ReadUpdatePlayerHouseInfoComponentData(fieldsData, index); break;
                     case WowCSEntityFragments.FHousingStorage_C: handler.ReadUpdateHousingStorageData(fieldsData, index); break;
                     case WowCSEntityFragments.FHousingFixture_C: handler.ReadUpdateHousingFixtureData(fieldsData, index); break;
+                    case WowCSEntityFragments.PlayerInitiativeComponent_C: handler.ReadUpdatePlayerInitiativeComponentData(fieldsData, index); break;
                 }
             }
         }
@@ -549,6 +567,9 @@ namespace WowPacketParserModule.V11_0_0_55666.Parsers
                 var removeForcesIDsCount = packet.ReadInt32();
                 movementUpdate.MoveIndex = packet.ReadInt32("MoveIndex", index);
 
+                if (ClientVersion.AddedInVersion(ClientBranch.Retail, ClientVersionBuild.V12_0_0_65390))
+                    packet.ReadSingle("GravityModifier", index);
+
                 for (var i = 0; i < removeForcesIDsCount; i++)
                     packet.ReadPackedGuid128("RemoveForcesIDs", index, i);
 
@@ -683,7 +704,7 @@ namespace WowPacketParserModule.V11_0_0_55666.Parsers
                         var hasJumpExtraData = packet.ReadBit("HasJumpExtraData", index);
                         var hasTurnData = ClientVersion.AddedInVersion(ClientVersionBuild.V11_1_7_61491) && packet.ReadBit("HasTurnData", index);
                         var hasAnimationTierTransition = packet.ReadBit("HasAnimationTierTransition", index);
-                        var hasUnknown901 = packet.ReadBit("Unknown901", index);
+                        var hasSpellVisualData = packet.ReadBit("HasSpellVisualData", index);
 
                         if (hasSplineFilterKey)
                         {
@@ -739,14 +760,13 @@ namespace WowPacketParserModule.V11_0_0_55666.Parsers
                                 packet.ReadByte("AnimTier", index);
                         }
 
-                        if (hasUnknown901)
+                        if (hasSpellVisualData)
                         {
                             for (var i = 0; i < 16; ++i)
                             {
-                                packet.ReadInt32("Unknown1", index, "Unknown901", i);
-                                packet.ReadInt32("Unknown2", index, "Unknown901", i);
-                                packet.ReadInt32("Unknown3", index, "Unknown901", i);
-                                packet.ReadInt32("Unknown4", index, "Unknown901", i);
+                                packet.ReadInt32("SpellID", index, "SpellVisualData", i);
+                                V9_0_1_36216.Parsers.SpellHandler.ReadSpellCastVisual(packet, index, "SpellVisualData", i, "Visual");
+                                packet.ReadInt32("StartNodeIndex", index, "SpellVisualData", i);
                             }
                         }
                     }

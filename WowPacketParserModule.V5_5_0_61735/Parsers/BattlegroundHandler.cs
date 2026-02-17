@@ -572,6 +572,13 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
             packet.ReadPackedGuid128("PlayerGuid");
         }
 
+        [Parser(Opcode.CMSG_ARENA_TEAM_ROSTER)]
+        [Parser(Opcode.CMSG_ARENA_TEAM_LEAVE)]
+        public static void HandleArenaTeamQuery(Packet packet)
+        {
+            packet.ReadUInt32("TeamID");
+        }
+
         [Parser(Opcode.SMSG_BATTLEFIELD_PORT_DENIED)]
         [Parser(Opcode.SMSG_BATTLEGROUND_INFO_THROTTLED)]
         [Parser(Opcode.CMSG_BATTLEFIELD_LEAVE)]
@@ -580,6 +587,8 @@ namespace WowPacketParserModule.V5_5_0_61735.Parsers
         [Parser(Opcode.CMSG_REQUEST_SCHEDULED_PVP_INFO)]
         [Parser(Opcode.CMSG_HEARTH_AND_RESURRECT)]
         [Parser(Opcode.CMSG_REQUEST_BATTLEFIELD_STATUS)]
+        [Parser(Opcode.CMSG_REQUEST_RATED_PVP_INFO)]
+        [Parser(Opcode.CMSG_GET_PVP_OPTIONS_ENABLED)]
         public static void HandleBattlegroundZero(Packet packet)
         {
         }
