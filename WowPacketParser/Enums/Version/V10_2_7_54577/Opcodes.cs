@@ -595,6 +595,7 @@ namespace WowPacketParser.Enums.Version.V10_2_7_54577
             { Opcode.CMSG_PERKS_PROGRAM_REQUEST_REFUND, 0x340B },
             { Opcode.CMSG_PERKS_PROGRAM_SET_FROZEN_VENDOR_ITEM, 0x340C },
             { Opcode.CMSG_PERKS_PROGRAM_STATUS_REQUEST, 0x3409 },
+            { Opcode.CMSG_UNKNOWN_PERK_PACKET, 0x3136},
             { Opcode.CMSG_PETITION_BUY, 0x34D1 },
             { Opcode.CMSG_PETITION_RENAME_GUILD, 0x36C4 },
             { Opcode.CMSG_PETITION_SHOW_LIST, 0x34D0 },
