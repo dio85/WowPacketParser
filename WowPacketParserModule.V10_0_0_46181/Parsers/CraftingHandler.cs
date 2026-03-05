@@ -145,6 +145,63 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                 Substructures.ItemHandler.ReadItemGemData(packet, indexes, "Gems", i);
         }
 
+        public static void ReadCraftingOrderRecraftInfo(Packet packet, params object[] indexes)
+        {
+            // First optional string pointer + size (encoded as byte + 2 bits for value+1)
+            var val1Byte = packet.ReadByte();
+            var val1Bits = packet.ReadBits(2);
+            var recraftItemCount = (((uint)val1Byte << 2) | (uint)val1Bits) - 1;
+
+            // Second optional string pointer + size (encoded as byte + 2 bits for value+1)
+            var val2Byte = packet.ReadByte();
+            var val2Bits = packet.ReadBits(2);
+            var recraftItemSlotIndex = (((uint)val2Byte << 2) | (uint)val2Bits) - 1;
+
+            packet.AddValue("RecraftItemCount", recraftItemCount, indexes);
+            packet.AddValue("RecraftItemSlotIndex", recraftItemSlotIndex, indexes);
+
+            // Two boolean flags (at offsets +32 and +33 in the assembly)
+            var isCraftingOrderRecraft = packet.ReadBit("IsCraftingOrderRecraft", indexes);
+            var hasRecraftGUID = packet.ReadBit("HasRecraftGUID", indexes);
+            packet.ResetBitReader();
+
+            // Two optional strings (CustomerNote and InternalNote based on sub_14248EE80 pattern)
+            var customerNoteLength = packet.ReadBits(11);
+            packet.ResetBitReader();
+            if (customerNoteLength > 0)
+                packet.ReadWoWString("CustomerNote", customerNoteLength, indexes);
+
+            var crafterNoteLength = packet.ReadBits(11);
+            packet.ResetBitReader();
+            if (crafterNoteLength > 0)
+                packet.ReadWoWString("CrafterNote", crafterNoteLength, indexes);
+        }
+
+        [Parser(Opcode.CMSG_CRAFTING_ORDER_LIST_CRAFTER_ORDERS)]
+        public static void HandleCraftingOrderListCrafterOrders(Packet packet)
+        {
+            packet.ReadPackedGuid128("CrafterGUID");
+            packet.ReadInt32("UnknownID");
+            packet.ReadByte("OrderType");
+            packet.ReadByte("ProfessionID");
+
+            var recipeCount = packet.ReadInt32("RecipeCount");
+
+            var displayID = packet.ReadBits("DisplayID", 2);
+            var hasRecraftInfo = packet.ReadBit("HasRecraftInfo");
+            packet.ResetBitReader();
+
+            // Each recipe is a SkillLineAbilityID encoded as 20 bits
+            for (var i = 0u; i < recipeCount; ++i)
+            {
+                packet.ReadBits("SkillLineAbilityID", 20, i);
+                packet.ResetBitReader();
+            }
+
+            // RecraftInfo structure is always present
+            ReadCraftingOrderRecraftInfo(packet, "RecraftInfo");
+        }
+
         [Parser(Opcode.SMSG_CRAFTING_ORDER_LIST_ORDERS_RESPONSE)]
         public static void HandleCraftingOrderListOrdersResponse(Packet packet)
         {
