@@ -162,7 +162,12 @@ namespace WowPacketParserModule.V8_0_1_27101.Parsers
                 packet.ReadUInt32<ItemId>("ItemID", i);
                 packet.ReadUInt32("Unk4", i);
                 var achievementReqCount = packet.ReadInt32("AchievementsRequiredCount", i);
-                if (ClientVersion.AddedInVersion(ClientVersionBuild.V7_3_5_25848))
+                if (ClientVersion.AddedInVersion(ClientVersionBuild.V12_0_5_67088))
+                {
+                    for (var j = 0; j < 2; ++j)
+                        packet.ReadUInt32("RaceMask", i, j);
+                }
+                else if (ClientVersion.AddedInVersion(ClientVersionBuild.V7_3_5_25848))
                     packet.ReadUInt64("RaceMask", i);
                 else
                     packet.ReadUInt32("RaceMask", i);

@@ -10,13 +10,13 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
         {
             packet.ReadInt32<SpellId>("SpellID", indexes);
             packet.ReadBit("IsFavorite", indexes);
-            var hasField8 = packet.ReadBit();
+            var hasEquipableSpellInvSlot = packet.ReadBit();
             var hasSuperceded = packet.ReadBit();
             var hasTraitDefinition = packet.ReadBit();
             packet.ResetBitReader();
 
-            if (hasField8)
-                packet.ReadInt32("field_8", indexes);
+            if (hasEquipableSpellInvSlot)
+                packet.ReadInt32("EquipableSpellInvSlot", indexes);
 
             if (hasSuperceded)
                 packet.ReadInt32<SpellId>("Superceded", indexes);
@@ -31,6 +31,8 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             var spellCount = packet.ReadUInt32();
             packet.ReadUInt32("SpecializationID");
             packet.ReadBit("SuppressMessaging");
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V11_2_0_62213))
+                packet.ReadBit("TraitGrantedByAura");
             packet.ResetBitReader();
 
             for (var i = 0; i < spellCount; ++i)

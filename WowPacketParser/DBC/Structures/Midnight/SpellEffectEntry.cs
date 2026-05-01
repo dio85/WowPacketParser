@@ -1,4 +1,4 @@
-using DBFileReaderLib.Attributes;
+using DBCD.IO.Attributes;
 
 namespace WowPacketParser.DBC.Structures.Midnight
 {
@@ -40,7 +40,7 @@ namespace WowPacketParser.DBC.Structures.Midnight
         public int[] EffectSpellClassMask = new int[4];
         [Cardinality(2)]
         public short[] ImplicitTarget = new short[2];
-        [NonInlineRelation(typeof(uint))]
+        [Relation(typeof(uint), true)]
         public int SpellID;
     }
 }

@@ -1,4 +1,4 @@
-using DBFileReaderLib.Attributes;
+using DBCD.IO.Attributes;
 
 namespace WowPacketParser.DBC.Structures.CataclysmClassic
 {
@@ -16,7 +16,7 @@ namespace WowPacketParser.DBC.Structures.CataclysmClassic
         public byte ResetInterval;
         public byte MaxPlayers;
         public byte Flags;
-        [NonInlineRelation(typeof(uint))]
+        [Relation(typeof(uint), true)]
         public int MapID;
     }
 }

@@ -1,4 +1,4 @@
-using DBFileReaderLib.Attributes;
+using DBCD.IO.Attributes;
 
 namespace WowPacketParser.DBC.Structures.Midnight
 {
@@ -9,7 +9,7 @@ namespace WowPacketParser.DBC.Structures.Midnight
         public uint ID;
         public int Locale;
         public int DurationMS;
-        [NonInlineRelation(typeof(uint))]
+        [Relation(typeof(uint), true)]
         public int BroadcastTextID;
     }
 }

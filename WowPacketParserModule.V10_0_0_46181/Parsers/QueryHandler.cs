@@ -1,11 +1,8 @@
-﻿
-using WowPacketParser.Enums;
+﻿using WowPacketParser.Enums;
 using WowPacketParser.Misc;
 using WowPacketParser.Parsing;
-using WowPacketParser.Proto;
 using WowPacketParser.Store;
 using WowPacketParser.Store.Objects;
-using CoreParsers = WowPacketParser.Parsing.Parsers;
 
 namespace WowPacketParserModule.V10_0_0_46181.Parsers
 {
@@ -152,7 +149,13 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
                 quest.TimeAllowed = packet.ReadInt32("TimeAllowed");
 
             var objectiveCount = packet.ReadUInt32("ObjectiveCount");
-            quest.AllowableRacesWod = packet.ReadUInt64("AllowableRaces");
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V12_0_5_67088))
+            {
+                quest.AllowableRacesWod = packet.ReadUInt32("RaceMask", 0);
+                quest.AllowableRacesWod |= (ulong)packet.ReadUInt32("RaceMask", 1) << 32;
+            }
+            else
+                quest.AllowableRacesWod = packet.ReadUInt64("AllowableRaces");
             var treasurePickerCount = 0u;
             var nonDisplayableTreasurePickerCount = 0u;
             if (ClientVersion.RemovedInVersion(ClientType.TheWarWithin))

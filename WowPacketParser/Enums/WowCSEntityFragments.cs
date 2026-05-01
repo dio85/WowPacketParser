@@ -31,6 +31,7 @@ namespace WowPacketParser.Enums
         Tag_MeshObject,
         Tag_HouseExteriorPiece,
         Tag_HouseExteriorRoot,
+        Tag_HousingDecorProxyGameObject,
         FEntityPosition,
         FEntityLocalMatrix,
         FEntityWorldMatrix,
@@ -135,6 +136,7 @@ namespace WowPacketParser.Enums
         Tag_MeshObject = 221,
         Tag_HouseExteriorPiece = 224,
         Tag_HouseExteriorRoot = 225,
+        Tag_HousingDecorProxyGameObject = 226,
         End = 255
     }
 
@@ -291,6 +293,7 @@ namespace WowPacketParser.Enums
                 WowCSEntityFragments1127.Tag_MeshObject => WowCSEntityFragments.Tag_MeshObject,
                 WowCSEntityFragments1127.Tag_HouseExteriorPiece => WowCSEntityFragments.Tag_HouseExteriorPiece,
                 WowCSEntityFragments1127.Tag_HouseExteriorRoot => WowCSEntityFragments.Tag_HouseExteriorRoot,
+                WowCSEntityFragments1127.Tag_HousingDecorProxyGameObject => WowCSEntityFragments.Tag_HousingDecorProxyGameObject,
                 _ => throw new ArgumentOutOfRangeException(nameof(fragment), fragment, null)
             };
         }

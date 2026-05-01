@@ -1016,7 +1016,10 @@ namespace WowPacketParserModule.V6_0_2_19033.Parsers
                 packet.ReadUInt32<SpellId>("SpellID");
 
             if (ClientVersion.AddedInVersion(ClientVersionBuild.V6_1_2_19802))
-                packet.ReadBit("Unk612 1");
+                packet.ReadBit("SuppressMessaging");
+
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V11_2_0_62213))
+                packet.ReadBit("TraitGrantedByAura");
         }
 
         [Parser(Opcode.SMSG_ADD_LOSS_OF_CONTROL)]

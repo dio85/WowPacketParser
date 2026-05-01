@@ -1,5 +1,4 @@
-﻿using System;
-using WowPacketParser.Misc;
+﻿using WowPacketParser.Misc;
 
 namespace WowPacketParser.Store.Objects.UpdateFields
 {

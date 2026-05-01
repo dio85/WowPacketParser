@@ -60,5 +60,32 @@ namespace WowPacketParserModule.V12_0_0_65390.Parsers
             for (var i = 0u; i < eventsCount; ++i)
                 V8_0_1_27101.Parsers.CalendarHandler.ReadCalendarSendCalendarEventInfo(packet, "Events", i);
         }
+
+        public static void ReadCalendarEventInfo(Packet packet, params object[] index)
+        {
+            packet.ReadUInt64("ClubID", index);
+            packet.ReadByteE<CalendarEventType>("EventType", index);
+            packet.ReadInt32("TextureID", index);
+            packet.ReadPackedTime("Time", index);
+            packet.ReadUInt16E<CalendarFlag>("Flags", index);
+            var inviteInfoCount = packet.ReadUInt32();
+
+            packet.ResetBitReader();
+            var titleLen = packet.ReadBits(8);
+            var descriptionLen = packet.ReadBits(11);
+
+            for (var i = 0u; i < inviteInfoCount; ++i)
+                V6_0_2_19033.Parsers.CalendarHandler.ReadCalendarAddEventInviteInfo(packet, index, i);
+
+            packet.ReadWoWString("Title", titleLen, index);
+            packet.ReadWoWString("Description", descriptionLen, index);
+        }
+
+        [Parser(Opcode.CMSG_CALENDAR_ADD_EVENT, ClientVersionBuild.V12_0_5_67088)]
+        public static void HandleUserClientCalendarAddEvent(Packet packet)
+        {
+            ReadCalendarEventInfo(packet);
+            packet.ReadUInt32("MaxSize");
+        }
     }
 }

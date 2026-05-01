@@ -278,11 +278,23 @@ namespace WowPacketParserModule.Substructures
             for (var i = 0u; i < itemBonusListCount; ++i)
                 packet.ReadInt32("BonusListID", indexes, i);
 
-            for (var i = 0u; i < itemModifiersCount; ++i)
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V11_0_0_55666))
             {
-                var value = packet.ReadInt32();
-                ItemModifier mod = packet.ReadByteE<ItemModifier>();
-                packet.AddValue(mod.ToString(), value, indexes);
+                for (var i = 0u; i < itemModifiersCount; ++i)
+                {
+                    ItemModifier mod = packet.ReadByteE<ItemModifier>();
+                    var value = packet.ReadInt32();
+                    packet.AddValue(mod.ToString(), value, indexes);
+                }
+            }
+            else
+            {
+                for (var i = 0u; i < itemModifiersCount; ++i)
+                {
+                    var value = packet.ReadInt32();
+                    ItemModifier mod = packet.ReadByteE<ItemModifier>();
+                    packet.AddValue(mod.ToString(), value, indexes);
+                }
             }
         }
     }

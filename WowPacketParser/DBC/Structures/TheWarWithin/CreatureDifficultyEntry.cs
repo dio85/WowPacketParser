@@ -1,4 +1,4 @@
-using DBFileReaderLib.Attributes;
+using DBCD.IO.Attributes;
 
 namespace WowPacketParser.DBC.Structures.TheWarWithin
 {
@@ -13,7 +13,7 @@ namespace WowPacketParser.DBC.Structures.TheWarWithin
         public int ContentTuningID;
         [Cardinality(9)]
         public int[] Flags = new int[9];
-        [NonInlineRelation(typeof(uint))]
+        [Relation(typeof(uint), true)]
         public int CreatureID;
     }
 }

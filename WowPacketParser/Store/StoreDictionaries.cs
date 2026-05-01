@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Wintellect.PowerCollections;
 using WowPacketParser.Enums;
 using WowPacketParser.Misc;
 using WowPacketParser.SQL;
@@ -172,72 +171,47 @@ namespace WowPacketParser.Store
 
     public class StoreMulti<T, TK> : Store, IEnumerable<KeyValuePair<T, ICollection<Tuple<TK, TimeSpan?>>>>
     {
-        private readonly MultiDictionary<T, Tuple<TK, TimeSpan?>> _dictionary;
+        private readonly ConcurrentDictionary<T, ICollection<Tuple<TK, TimeSpan?>>> _dictionary;
 
         public StoreMulti()
         {
-            Types = new List<SQLOutput>();
+            Types = [];
             Enabled = true;
-            _dictionary = new MultiDictionary<T, Tuple<TK, TimeSpan?>>(true);
+            _dictionary = new ConcurrentDictionary<T, ICollection<Tuple<TK, TimeSpan?>>>();
         }
 
         public StoreMulti(List<SQLOutput> types)
         {
             Types = types;
             Enabled = ProcessFlags();
-            _dictionary = Enabled ? new MultiDictionary<T, Tuple<TK, TimeSpan?>>(true) : null;
+            _dictionary = Enabled ? new ConcurrentDictionary<T, ICollection<Tuple<TK, TimeSpan?>>>() : null;
         }
 
-        public StoreMulti(IEnumerable<KeyValuePair<T, ICollection<TK>>> dict)
+        public StoreMulti(Dictionary<T, ICollection<TK>> dict)
         {
-            _dictionary = new MultiDictionary<T, Tuple<TK, TimeSpan?>>(true);
-
-            foreach (var pair in dict)
-                foreach (var k in pair.Value)
-                    _dictionary.Add(pair.Key, new Tuple<TK, TimeSpan?>(k, null));
-
-
-            Types = new List<SQLOutput>();
+            _dictionary =
+                new ConcurrentDictionary<T, ICollection<Tuple<TK, TimeSpan?>>>(dict.ToDictionary(pair => pair.Key,
+                    ICollection<Tuple<TK, TimeSpan?>> (pair) => pair.Value.Select(value => new Tuple<TK, TimeSpan?>(value, null)).ToList()));
+            Types = [];
             Enabled = true;
         }
 
-        public void Add(T key, TK value, TimeSpan? time)
+        public void Add(T key, TK value, TimeSpan? time = null)
         {
             if (!Enabled)
                 return;
 
-            _dictionary.Add(key, new Tuple<TK, TimeSpan?>(value, time));
+            var newValue = new Tuple<TK, TimeSpan?>(value, time);
+            _dictionary.AddOrUpdate(key, _ => [newValue], (k, oldval) =>
+            {
+                oldval.Add(newValue);
+                return oldval;
+            });
         }
 
         public bool Remove(T key)
         {
-            return !Enabled || _dictionary.Remove(key);
-        }
-
-        public override void Clear()
-        {
-            if (Enabled)
-                _dictionary.Clear();
-        }
-
-        public override bool IsEmpty()
-        {
-            return !Enabled || _dictionary.Count == 0;
-        }
-
-        public IEnumerator<KeyValuePair<T, ICollection<Tuple<TK, TimeSpan?>>>> GetEnumerator()
-        {
-            return Enabled ? _dictionary.GetEnumerator() : new MultiDictionary<T, Tuple<TK, TimeSpan?>>(true).GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
-        public List<T> Keys()
-        {
-            return Enabled ? _dictionary.Keys.ToList() : new List<T>();
+            return !Enabled || _dictionary.TryRemove(key, out _);
         }
 
         public bool ContainsKey(T key)
@@ -247,17 +221,35 @@ namespace WowPacketParser.Store
 
         public ICollection<Tuple<TK, TimeSpan?>> this[T key]
         {
-            get
-            {
-                return Enabled ? _dictionary[key] : null;
-            }
-
+            get => Enabled ? _dictionary[key] : null;
             set
             {
                 if (Enabled)
                     _dictionary[key] = value;
             }
         }
+
+        public override void Clear()
+        {
+            if (Enabled)
+                _dictionary.Clear();
+        }
+
+        public override bool IsEmpty() => !Enabled || _dictionary.IsEmpty;
+
+        public IEnumerator<KeyValuePair<T, ICollection<Tuple<TK, TimeSpan?>>>> GetEnumerator()
+        {
+            return Enabled ? _dictionary.GetEnumerator() : new Dictionary<T, ICollection<Tuple<TK, TimeSpan?>>>().GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        public ICollection<T> Keys => Enabled ? _dictionary.Keys : new List<T>();
+
+        public ICollection<ICollection<Tuple<TK, TimeSpan?>>> Values => Enabled ? _dictionary.Values : [];
     }
 
     public class StoreBag<T> : Store, IEnumerable<Tuple<T, TimeSpan?>>
@@ -303,7 +295,7 @@ namespace WowPacketParser.Store
 
         public IEnumerator<Tuple<T, TimeSpan?>> GetEnumerator()
         {
-            return Enabled ? Bag.GetEnumerator() : new Bag<Tuple<T, TimeSpan?>>().GetEnumerator();
+            return Enabled ? Bag.GetEnumerator() : new List<Tuple<T, TimeSpan?>>().GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()

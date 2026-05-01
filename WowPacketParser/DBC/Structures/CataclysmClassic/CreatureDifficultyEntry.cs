@@ -1,4 +1,4 @@
-using DBFileReaderLib.Attributes;
+using DBCD.IO.Attributes;
 
 namespace WowPacketParser.DBC.Structures.CataclysmClassic
 {
@@ -14,7 +14,7 @@ namespace WowPacketParser.DBC.Structures.CataclysmClassic
         public int ContentTuningID;
         [Cardinality(8)]
         public int[] Flags = new int[8];
-        [NonInlineRelation(typeof(uint))]
+        [Relation(typeof(uint), true)]
         public int CreatureID;
     }
 }

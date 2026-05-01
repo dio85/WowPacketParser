@@ -9,8 +9,6 @@ using WowPacketParser.Proto;
 using WowPacketParser.Store;
 using WowPacketParser.Store.Objects;
 using WowPacketParser.Store.Objects.Comparer;
-using WowPacketParser.Store.Objects.UpdateFields.LegacyImplementation;
-using static Google.Protobuf.Compiler.CodeGeneratorResponse.Types;
 
 namespace WowPacketParser.SQL.Builders
 {

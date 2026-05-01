@@ -11,12 +11,12 @@ namespace WowPacketParserModule.V4_4_0_54481.UpdateFields.V1_15_7_60000
     [GeneratedCode("UpdateFieldCodeGenerator.Formats.WowPacketParserHandler", "1.0.0.0")]
     public class DelveData : IDelveData
     {
-        public int Field_0 { get; set; }
-        public ulong Field_8 { get; set; }
+        public int MapID { get; set; }
+        public ulong InstanceID { get; set; }
         public int Field_10 { get; set; }
         public int SpellID { get; set; }
-        public WowGuid[] Owners { get; set; }
-        public uint Started { get; set; }
+        public WowGuid[] PlayersEligibleForRewards { get; set; }
+        public uint RestrictingRewardPlayers { get; set; }
     }
 }
 

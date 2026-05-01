@@ -65,6 +65,22 @@ namespace WowPacketParser.Misc
             }
         }
 
+        public StoreNameType GetStoreNameType()
+        {
+            return GetHighType() switch
+            {
+                HighGuidType.Player => StoreNameType.Player,
+                HighGuidType.Item => StoreNameType.Item,
+                HighGuidType.Transport => StoreNameType.GameObject,
+                HighGuidType.Creature => StoreNameType.Unit,
+                HighGuidType.Vehicle => StoreNameType.Unit,
+                HighGuidType.Pet => StoreNameType.Unit,
+                HighGuidType.GameObject => StoreNameType.GameObject,
+                HighGuidType.Cast => StoreNameType.Spell,
+                _ => StoreNameType.None
+            };
+        }
+
         public static bool operator ==(WowGuid first, WowGuid other)
         {
             if (ReferenceEquals(first, other))
@@ -157,31 +173,35 @@ namespace WowPacketParser.Misc
 
         public override string ToString()
         {
-            if (Low == 0 && High == 0)
-                return "Full: 0x0";
-
-            if (HasEntry())
+            switch (GetHighType())
             {
-                StoreNameType type = StoreNameType.None;
-                if (GetHighType() == HighGuidType.Cast)
-                    type = StoreNameType.Spell;
-                else
-                    type = Utilities.ObjectTypeToStore(GetObjectType());
-
-                // ReSharper disable once UseStringInterpolation
-                return string.Format("Full: 0x{0}{1} {2}/{3} R{4}/S{5} Map: {6} Entry: {7} Low: {8}", High.ToString("X16"), Low.ToString("X16"),
-                    GetHighType(), GetSubType(), GetRealmId(), GetServerId(), StoreGetters.GetName(StoreNameType.Map, GetMapId()),
-                    StoreGetters.GetName(type, (int)GetEntry()), GetLow());
+                case HighGuidType.Null: return "Full: 0x0";
+                case HighGuidType.Housing: return FormatHousing();
+                default:
+                    break;
             }
 
-            // TODO: Implement extra format for battleground, see WowGuid64.ToString()
+            if (HasEntry())
+                return $"Full: 0x{High:X16}{Low:X16} {GetHighType()}/{GetSubType()} R{GetRealmId()}/S{GetServerId()} Map: {StoreGetters.GetName(StoreNameType.Map, GetMapId())} Entry: {StoreGetters.GetName(GetStoreNameType(), (int)GetEntry())} Low: {GetLow()}";
 
-            string name = StoreGetters.GetName(this);
+            var name = StoreGetters.GetName(this);
+            return $"Full: 0x{High:X16}{Low:X16} {GetHighType()}/{GetSubType()} R{GetRealmId()}/S{GetServerId()} Map: {StoreGetters.GetName(StoreNameType.Map, GetMapId())} Low: {GetLow() + (string.IsNullOrEmpty(name) ? string.Empty : (" Name: " + name))}";
+        }
 
-            // ReSharper disable once UseStringInterpolation
-            return string.Format("Full: 0x{0}{1} {2}/{3} R{4}/S{5} Map: {6} Low: {7}", High.ToString("X16"), Low.ToString("X16"),
-                    GetHighType(), GetSubType(), GetRealmId(), GetServerId(), StoreGetters.GetName(StoreNameType.Map, GetMapId()),
-                    GetLow() + (String.IsNullOrEmpty(name) ? String.Empty : (" Name: " + name)));
+        private string FormatHousing()
+        {
+            var subType = (HousingGuidType)((High >> 53) & 0x1F);
+            var formatted = $"Full: 0x{High:X16}{Low:X16} {GetHighType()}/{subType} ";
+            formatted += subType switch
+            {
+                HousingGuidType.Decor => $"Arg1: {(High >> 32) & 0xFFFF} DecorID: {High & 0xFFFFFFFF} ",
+                HousingGuidType.RoomComponent => $"HouseRoomID: {High & 0xFFFFFFFF} ",
+                HousingGuidType.House => $"Arg1: {Low & 0x7FFF} Arg2: {(Low >> 15) & 0x3F} ",
+                HousingGuidType.Neighborhood => $"NeighborhoodMapID: {(High >> 32) & 0xFFFF} Arg2: {High & 0xFFFFFFFF} ",
+                _ => $"SubType: Unknown({(byte)subType}) ",
+            };
+            formatted += $"Low: {GetLow()}";
+            return formatted;
         }
     }
 
@@ -260,7 +280,7 @@ namespace WowPacketParser.Misc
             // name next to the entry (from a database, if enabled)
             if (HasEntry())
             {
-                var type = Utilities.ObjectTypeToStore(GetObjectType());
+                var type = GetStoreNameType();
 
                 return "Full: 0x" + Low.ToString("X8") + " Type: " + GetHighType()
                     + " Entry: " + StoreGetters.GetName(type, (int)GetEntry()) + " Low: " + GetLow();

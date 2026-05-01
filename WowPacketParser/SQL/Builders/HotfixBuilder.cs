@@ -4,7 +4,6 @@ using WowPacketParser.Enums;
 using WowPacketParser.Hotfix;
 using WowPacketParser.Misc;
 using WowPacketParser.Store;
-using WowPacketParser.Store.Objects;
 
 namespace WowPacketParser.SQL.Builders
 {

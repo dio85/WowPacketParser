@@ -1,4 +1,4 @@
-﻿using DBFileReaderLib.Attributes;
+﻿using DBCD.IO.Attributes;
 using System;
 
 namespace WowPacketParser.DBC.Structures.Dragonflight

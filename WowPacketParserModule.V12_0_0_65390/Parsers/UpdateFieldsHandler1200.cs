@@ -742,8 +742,8 @@ namespace WowPacketParserModule.V12_0_0_65390.UpdateFields.V12_0_0_65390
             data.ConditionalItemAppearanceID = packet.ReadInt32("ConditionalItemAppearanceID", indexes);
             data.ItemAppearanceModID = packet.ReadUInt16("ItemAppearanceModID", indexes);
             data.ItemVisual = packet.ReadUInt16("ItemVisual", indexes);
-            data.Field_10 = packet.ReadBit("Field_10", indexes);
-            data.Field_11 = packet.ReadBit("Field_11", indexes);
+            data.HasTransmog = packet.ReadBit("HasTransmog", indexes);
+            data.HasIllusion = packet.ReadBit("HasIllusion", indexes);
             return data;
         }
 
@@ -759,11 +759,11 @@ namespace WowPacketParserModule.V12_0_0_65390.UpdateFields.V12_0_0_65390
             {
                 if (changesMask[1])
                 {
-                    data.Field_10 = packet.ReadBit("Field_10", indexes);
+                    data.HasTransmog = packet.ReadBit("HasTransmog", indexes);
                 }
                 if (changesMask[2])
                 {
-                    data.Field_11 = packet.ReadBit("Field_11", indexes);
+                    data.HasIllusion = packet.ReadBit("HasIllusion", indexes);
                 }
             }
             packet.ResetBitReader();
@@ -4241,9 +4241,9 @@ namespace WowPacketParserModule.V12_0_0_65390.UpdateFields.V12_0_0_65390
             var data = new WalkInData();
             packet.ResetBitReader();
             data.MapID = packet.ReadInt32("MapID", indexes);
-            data.Field_8 = packet.ReadInt64("Field_8", indexes);
-            data.Field_18 = packet.ReadPackedGuid128("Field_18", indexes);
-            data.Type = packet.ReadBits("Type", 1, indexes);
+            data.InstanceID = packet.ReadInt64("InstanceID", indexes);
+            data.WalkInPartyGUID = packet.ReadPackedGuid128("WalkInPartyGUID", indexes);
+            data.WalkInInstanceType = packet.ReadBits("WalkInInstanceType", 1, indexes);
             return data;
         }
 
@@ -4252,9 +4252,9 @@ namespace WowPacketParserModule.V12_0_0_65390.UpdateFields.V12_0_0_65390
             var data = new WalkInData();
             packet.ResetBitReader();
             data.MapID = packet.ReadInt32("MapID", indexes);
-            data.Field_8 = packet.ReadInt64("Field_8", indexes);
-            data.Field_18 = packet.ReadPackedGuid128("Field_18", indexes);
-            data.Type = packet.ReadBits("Type", 1, indexes);
+            data.InstanceID = packet.ReadInt64("InstanceID", indexes);
+            data.WalkInPartyGUID = packet.ReadPackedGuid128("WalkInPartyGUID", indexes);
+            data.WalkInInstanceType = packet.ReadBits("WalkInInstanceType", 1, indexes);
             return data;
         }
 
@@ -4262,16 +4262,16 @@ namespace WowPacketParserModule.V12_0_0_65390.UpdateFields.V12_0_0_65390
         {
             var data = new DelveData();
             packet.ResetBitReader();
-            data.Field_0 = packet.ReadInt32("Field_0", indexes);
-            data.Field_8 = packet.ReadUInt64("Field_8", indexes);
+            data.MapID = packet.ReadInt32("MapID", indexes);
+            data.InstanceID = packet.ReadUInt64("InstanceID", indexes);
             data.Field_10 = packet.ReadInt32("Field_10", indexes);
             data.SpellID = packet.ReadInt32("SpellID", indexes);
-            data.Owners = new WowGuid[packet.ReadUInt32()];
-            for (var i = 0; i < data.Owners.Length; ++i)
+            data.PlayersEligibleForRewards = new WowGuid[packet.ReadUInt32()];
+            for (var i = 0; i < data.PlayersEligibleForRewards.Length; ++i)
             {
-                data.Owners[i] = packet.ReadPackedGuid128("Owners", indexes, i);
+                data.PlayersEligibleForRewards[i] = packet.ReadPackedGuid128("PlayersEligibleForRewards", indexes, i);
             }
-            data.Started = packet.ReadBits("Started", 1, indexes);
+            data.RestrictingRewardPlayers = packet.ReadBits("RestrictingRewardPlayers", 1, indexes);
             return data;
         }
 
@@ -4280,16 +4280,16 @@ namespace WowPacketParserModule.V12_0_0_65390.UpdateFields.V12_0_0_65390
             var data = new DelveData();
             packet.ResetBitReader();
             packet.ResetBitReader();
-            data.Field_0 = packet.ReadInt32("Field_0", indexes);
-            data.Field_8 = packet.ReadUInt64("Field_8", indexes);
+            data.MapID = packet.ReadInt32("MapID", indexes);
+            data.InstanceID = packet.ReadUInt64("InstanceID", indexes);
             data.Field_10 = packet.ReadInt32("Field_10", indexes);
             data.SpellID = packet.ReadInt32("SpellID", indexes);
-            data.Owners = new WowGuid[packet.ReadUInt32()];
-            for (var i = 0; i < data.Owners.Length; ++i)
+            data.PlayersEligibleForRewards = new WowGuid[packet.ReadUInt32()];
+            for (var i = 0; i < data.PlayersEligibleForRewards.Length; ++i)
             {
-                data.Owners[i] = packet.ReadPackedGuid128("Owners", indexes, i);
+                data.PlayersEligibleForRewards[i] = packet.ReadPackedGuid128("PlayersEligibleForRewards", indexes, i);
             }
-            data.Started = packet.ReadBits("Started", 1, indexes);
+            data.RestrictingRewardPlayers = packet.ReadBits("RestrictingRewardPlayers", 1, indexes);
             return data;
         }
 
@@ -4742,7 +4742,7 @@ namespace WowPacketParserModule.V12_0_0_65390.UpdateFields.V12_0_0_65390
             data.HouseThemes.Resize(packet.ReadUInt32());
             data.HouseRoomComponentTextures.Resize(packet.ReadUInt32());
             data.HouseTypes.Resize(packet.ReadUInt32());
-            data.Field_1980.Resize(packet.ReadUInt32());
+            data.UnlockedTransmogOutfits.Resize(packet.ReadUInt32());
             data.CharacterRestrictions.Resize(packet.ReadUInt32());
             data.SpellPctModByLabel.Resize(packet.ReadUInt32());
             data.SpellFlatModByLabel.Resize(packet.ReadUInt32());
@@ -4861,9 +4861,9 @@ namespace WowPacketParserModule.V12_0_0_65390.UpdateFields.V12_0_0_65390
             {
                 data.HouseTypes[i] = packet.ReadUInt32("HouseTypes", indexes, i);
             }
-            for (var i = 0; i < data.Field_1980.Count; ++i)
+            for (var i = 0; i < data.UnlockedTransmogOutfits.Count; ++i)
             {
-                data.Field_1980[i] = packet.ReadInt32("Field_1980", indexes, i);
+                data.UnlockedTransmogOutfits[i] = packet.ReadInt32("UnlockedTransmogOutfits", indexes, i);
             }
             for (var i = 0; i < data.SpellPctModByLabel.Count; ++i)
             {
@@ -5217,7 +5217,7 @@ namespace WowPacketParserModule.V12_0_0_65390.UpdateFields.V12_0_0_65390
                 }
                 if (changesMask[29])
                 {
-                    data.Field_1980.ReadUpdateMask(packet);
+                    data.UnlockedTransmogOutfits.ReadUpdateMask(packet);
                 }
                 if (changesMask[30])
                 {
@@ -5506,11 +5506,11 @@ namespace WowPacketParserModule.V12_0_0_65390.UpdateFields.V12_0_0_65390
                 }
                 if (changesMask[29])
                 {
-                    for (var i = 0; i < data.Field_1980.Count; ++i)
+                    for (var i = 0; i < data.UnlockedTransmogOutfits.Count; ++i)
                     {
-                        if (data.Field_1980.UpdateMask[i])
+                        if (data.UnlockedTransmogOutfits.UpdateMask[i])
                         {
-                            data.Field_1980[i] = packet.ReadInt32("Field_1980", indexes, i);
+                            data.UnlockedTransmogOutfits[i] = packet.ReadInt32("UnlockedTransmogOutfits", indexes, i);
                         }
                     }
                 }
@@ -8583,7 +8583,7 @@ namespace WowPacketParserModule.V12_0_0_65390.UpdateFields.V12_0_0_65390
         {
             var data = new PlayerMirrorHouse();
             packet.ResetBitReader();
-            data.Guid = packet.ReadPackedGuid128("Guid", indexes);
+            data.HouseGUID = packet.ReadPackedGuid128("HouseGUID", indexes);
             data.NeighborhoodGUID = packet.ReadPackedGuid128("NeighborhoodGUID", indexes);
             data.Level = packet.ReadUInt32("Level", indexes);
             data.Favor = packet.ReadUInt32("Favor", indexes);
@@ -8598,7 +8598,7 @@ namespace WowPacketParserModule.V12_0_0_65390.UpdateFields.V12_0_0_65390
         {
             var data = new PlayerMirrorHouse();
             packet.ResetBitReader();
-            data.Guid = packet.ReadPackedGuid128("Guid", indexes);
+            data.HouseGUID = packet.ReadPackedGuid128("HouseGUID", indexes);
             data.NeighborhoodGUID = packet.ReadPackedGuid128("NeighborhoodGUID", indexes);
             data.Level = packet.ReadUInt32("Level", indexes);
             data.Favor = packet.ReadUInt32("Favor", indexes);

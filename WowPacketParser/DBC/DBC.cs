@@ -1,4 +1,4 @@
-using DBFileReaderLib;
+using DBCD.IO;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,30 +13,30 @@ namespace WowPacketParser.DBC
 {
     public static class DBC
     {
-        public static Storage<AreaTableEntry> AreaTable { get; set; }
-        public static Storage<AchievementEntry> Achievement { get; set; }
-        public static Storage<AnimationDataEntry> AnimationData { get; set; }
-        public static Storage<BroadcastTextEntry> BroadcastText { get; set; }
-        public static Storage<BroadcastTextDurationEntry> BroadcastTextDuration { get; set; }
-        public static Storage<ConversationLineEntry> ConversationLine { get; set; }
-        public static Storage<CreatureEntry> Creature { get; set; }
-        public static Storage<CreatureDifficultyEntry> CreatureDifficulty { get; set; }
-        public static Storage<CreatureFamilyEntry> CreatureFamily { get; set; }
-        public static Storage<CreatureDisplayInfoEntry> CreatureDisplayInfo { get; set; }
-        public static Storage<CriteriaTreeEntry> CriteriaTree { get; set; }
-        public static Storage<CriteriaEntry> Criteria { get; set; }
-        public static Storage<DifficultyEntry> Difficulty { get; set; }
-        public static Storage<FactionEntry> Faction { get; set; }
-        public static Storage<FactionTemplateEntry> FactionTemplate { get; set; }
-        public static Storage<ItemEntry> Item { get; set; }
-        public static Storage<ItemSparseEntry> ItemSparse { get; set; }
-        public static Storage<MapEntry> Map { get; set; }
-        public static Storage<MapDifficultyEntry> MapDifficulty { get; set; }
-        public static Storage<QuestLineXQuestEntry> QuestLineXQuest { get; set; }
-        public static Storage<PhaseEntry> Phase { get; set; }
-        public static Storage<PhaseXPhaseGroupEntry> PhaseXPhaseGroup { get; set; }
-        public static Storage<SpellEffectEntry> SpellEffect { get; set; }
-        public static Storage<SpellNameEntry> SpellName { get; set; }
+        internal static Storage<AreaTableEntry> AreaTable { get; set; }
+        internal static Storage<AchievementEntry> Achievement { get; set; }
+        internal static Storage<AnimationDataEntry> AnimationData { get; set; }
+        internal static Storage<BroadcastTextEntry> BroadcastText { get; set; }
+        internal static Storage<BroadcastTextDurationEntry> BroadcastTextDuration { get; set; }
+        internal static Storage<ConversationLineEntry> ConversationLine { get; set; }
+        internal static Storage<CreatureEntry> Creature { get; set; }
+        internal static Storage<CreatureDifficultyEntry> CreatureDifficulty { get; set; }
+        internal static Storage<CreatureFamilyEntry> CreatureFamily { get; set; }
+        internal static Storage<CreatureDisplayInfoEntry> CreatureDisplayInfo { get; set; }
+        internal static Storage<CriteriaTreeEntry> CriteriaTree { get; set; }
+        internal static Storage<CriteriaEntry> Criteria { get; set; }
+        internal static Storage<DifficultyEntry> Difficulty { get; set; }
+        internal static Storage<FactionEntry> Faction { get; set; }
+        internal static Storage<FactionTemplateEntry> FactionTemplate { get; set; }
+        internal static Storage<ItemEntry> Item { get; set; }
+        internal static Storage<ItemSparseEntry> ItemSparse { get; set; }
+        internal static Storage<MapEntry> Map { get; set; }
+        internal static Storage<MapDifficultyEntry> MapDifficulty { get; set; }
+        internal static Storage<QuestLineXQuestEntry> QuestLineXQuest { get; set; }
+        internal static Storage<PhaseEntry> Phase { get; set; }
+        internal static Storage<PhaseXPhaseGroupEntry> PhaseXPhaseGroup { get; set; }
+        internal static Storage<SpellEffectEntry> SpellEffect { get; set; }
+        internal static Storage<SpellNameEntry> SpellName { get; set; }
 
         private static string GetDBCPath()
         {
@@ -53,7 +53,7 @@ namespace WowPacketParser.DBC
             return Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), Settings.HotfixCachePath);
         }
 
-        public static async void Load()
+        public static async Task Load()
         {
             if (!Directory.Exists(GetDBCPath()))
             {
@@ -77,7 +77,7 @@ namespace WowPacketParser.DBC
             Trace.WriteLine("File name                           LoadTime             Record count");
             Trace.WriteLine("---------------------------------------------------------------------");
 
-            Parallel.ForEach(typeof(DBC).GetProperties(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic), dbc =>
+            await Task.WhenAll(typeof(DBC).GetProperties(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic).Select(dbc => Task.Run(() =>
             {
                 Type type = dbc.PropertyType.GetGenericArguments()[0];
 
@@ -89,15 +89,14 @@ namespace WowPacketParser.DBC
                 if (attr == null)
                     return;
 
-                var times = new List<long>();
-                var instanceType = typeof(Storage<>).MakeGenericType(type);
+                var instanceType = dbc.PropertyType;
                 var countGetter = instanceType.GetProperty("Count").GetGetMethod();
-                dynamic instance = Activator.CreateInstance(instanceType, $"{ GetDBCPath(attr.FileName) }.db2");
-                var recordCount = (int)countGetter.Invoke(instance, new object[] { });
+                dynamic instance = Activator.CreateInstance(instanceType, $"{GetDBCPath(attr.FileName)}.db2");
+                var recordCount = (int)countGetter.Invoke(instance, Array.Empty<object>());
 
                 try
                 {
-                    var db2Reader = new DBReader($"{ GetDBCPath(attr.FileName) }.db2");
+                    var db2Reader = new DBParser($"{GetDBCPath(attr.FileName)}.db2");
 
                     if (hotfixReader != null)
                         hotfixReader.ApplyHotfixes(instance, db2Reader);
@@ -107,131 +106,130 @@ namespace WowPacketParser.DBC
                 catch (TargetInvocationException tie)
                 {
                     if (tie.InnerException is ArgumentException)
-                        throw new ArgumentException($"Failed to load {attr.FileName}.db2: {tie.InnerException.Message}");
+                        throw new ArgumentException(
+                            $"Failed to load {attr.FileName}.db2: {tie.InnerException.Message}");
                     throw;
                 }
 
                 var endTime = DateTime.Now;
                 var span = endTime.Subtract(startTime);
 
-                Trace.WriteLine($"{ attr.FileName.PadRight(33) } { TimeSpan.FromTicks(span.Ticks).ToString().PadRight(28) } { recordCount.ToString().PadRight(19) }");
-            });
+                Trace.WriteLine($"{attr.FileName,-33} {span,-28} {recordCount,-19}");
+            })));
 
             await Task.WhenAll(Task.Run(() =>
             {
-                if (AreaTable != null)
-                    foreach (var db2Info in AreaTable)
-                    {
-                        if (db2Info.Value.ParentAreaID != 0 && !Zones.ContainsKey(db2Info.Value.ParentAreaID))
-                            Zones.Add(db2Info.Value.ParentAreaID, db2Info.Value.ZoneName);
-                    }
+                if (AreaTable == null)
+                    return;
+
+                foreach (var db2Info in AreaTable)
+                    if (db2Info.Value.ParentAreaID != 0 && !Zones.ContainsKey(db2Info.Value.ParentAreaID))
+                        Zones.Add(db2Info.Value.ParentAreaID, db2Info.Value.ZoneName);
             }), Task.Run(() =>
             {
-                if (MapDifficulty != null)
+                if (MapDifficulty == null)
+                    return;
+
+                foreach (var mapDifficulty in MapDifficulty)
                 {
-                    foreach (var mapDifficulty in MapDifficulty)
-                    {
-                        int difficultyID = 1 << mapDifficulty.Value.DifficultyID;
-
-                        if (MapSpawnMaskStores.ContainsKey(mapDifficulty.Value.MapID))
-                            MapSpawnMaskStores[mapDifficulty.Value.MapID] |= difficultyID;
-                        else
-                            MapSpawnMaskStores.Add(mapDifficulty.Value.MapID, difficultyID);
-
-                        if (!MapDifficultyStores.ContainsKey(mapDifficulty.Value.MapID))
-                            MapDifficultyStores.Add(mapDifficulty.Value.MapID, new List<int>() { mapDifficulty.Value.DifficultyID });
-                        else
-                            MapDifficultyStores[mapDifficulty.Value.MapID].Add(mapDifficulty.Value.DifficultyID);
-                    }
+                    if (!MapDifficultyStores.TryGetValue(mapDifficulty.Value.MapID, out var difficulty))
+                        MapDifficultyStores.Add(mapDifficulty.Value.MapID, [mapDifficulty.Value.DifficultyID]);
+                    else
+                        difficulty.Add(mapDifficulty.Value.DifficultyID);
                 }
             }), Task.Run(() =>
             {
-                if (CriteriaTree != null && Achievement != null)
+                if (CriteriaTree == null || Achievement == null)
+                    return;
+
+                var achievements = Achievement.Select(kvp => kvp.Value)
+                    .Where(achievement => achievement.CriteriaTree != 0)
+                    .GroupBy(achievement => achievement.CriteriaTree)
+                    .ToDictionary(
+                        group => group.Key,
+                        group => string.Join(' ', group.Select(achiev => $"AchievementID: {achiev.ID} Description: \"{achiev.Description}\"")));
+
+                foreach (var criteriaTree in CriteriaTree)
                 {
-                    ICollection<AchievementEntry> achievementLists = Achievement.Values;
-                    var achievements = achievementLists.GroupBy(achievement => achievement.CriteriaTree)
-                        .ToDictionary(group => group.Key, group => group.ToList());
+                    if (criteriaTree.Value.CriteriaID == 0)
+                        continue;
 
-                    foreach (var criteriaTree in CriteriaTree)
+                    string result = "";
+                    uint criteriaTreeID = criteriaTree.Value.Parent > 0 ? criteriaTree.Value.Parent : (uint)criteriaTree.Key;
+
+                    if (achievements.TryGetValue(criteriaTreeID, out var achievementList))
+                        result += achievementList;
+
+                    if (!CriteriaStores.ContainsKey((ushort)criteriaTree.Value.CriteriaID))
                     {
-                        string result = "";
-                        uint criteriaTreeID = criteriaTree.Value.Parent > 0 ? criteriaTree.Value.Parent : (uint)criteriaTree.Key;
+                        if (criteriaTree.Value.Description != string.Empty)
+                            result += $" - CriteriaDescription: \"{criteriaTree.Value.Description }\"";
 
-                        List<AchievementEntry> achievementList;
-                        if (achievements.TryGetValue(criteriaTreeID, out achievementList))
-                            foreach (var achievement in achievementList)
-                                result = $"AchievementID: {achievement.ID} Description: \"{ achievement.Description }\"";
-
-                        if (!CriteriaStores.ContainsKey((ushort)criteriaTree.Value.CriteriaID))
-                        {
-                            if (criteriaTree.Value.Description != string.Empty)
-                                result += $" - CriteriaDescription: \"{criteriaTree.Value.Description }\"";
-
-                            CriteriaStores.Add((ushort)criteriaTree.Value.CriteriaID, result);
-                        }
-                        else
-                            CriteriaStores[(ushort)criteriaTree.Value.CriteriaID] += $" / CriteriaDescription: \"{ criteriaTree.Value.Description }\"";
+                        CriteriaStores.Add((ushort)criteriaTree.Value.CriteriaID, result);
                     }
+                    else
+                        CriteriaStores[(ushort)criteriaTree.Value.CriteriaID] += $" / CriteriaDescription: \"{ criteriaTree.Value.Description }\"";
                 }
             }), Task.Run(() =>
             {
-                if (Faction != null && FactionTemplate != null)
+                if (Faction == null || FactionTemplate == null)
+                    return;
+
+                foreach (var factionTemplate in FactionTemplate)
+                    if (Faction.TryGetValue(factionTemplate.Value.Faction, out var faction))
+                        FactionStores.Add((uint)factionTemplate.Key, faction);
+            }), Task.Run(() =>
+            {
+                if (SpellEffect == null)
+                    return;
+
+                foreach (var effect in SpellEffect)
                 {
-                    foreach (var factionTemplate in FactionTemplate)
-                    {
-                        if (Faction.ContainsKey(factionTemplate.Value.Faction))
-                            FactionStores.Add((uint)factionTemplate.Key, Faction[factionTemplate.Value.Faction]);
-                    }
+                    var tuple = Tuple.Create((uint)effect.Value.SpellID, (uint)effect.Value.EffectIndex);
+                    SpellEffectStores[tuple] = effect.Value;
                 }
             }), Task.Run(() =>
             {
-                if (SpellEffect != null)
-                    foreach (var effect in SpellEffect)
-                    {
-                        var tuple = Tuple.Create((uint)effect.Value.SpellID, (uint)effect.Value.EffectIndex);
-                        SpellEffectStores[tuple] = effect.Value;
-                    }
+                if (PhaseXPhaseGroup == null)
+                    return;
+
+                foreach (var phase in PhaseXPhaseGroup)
+                {
+                    if (!PhasesByGroup.TryGetValue(phase.Value.PhaseGroupID, out var phases))
+                        PhasesByGroup.Add(phase.Value.PhaseGroupID, [phase.Value.PhaseID]);
+                    else
+                        phases.Add(phase.Value.PhaseID);
+
+                    if (!PhaseGroupsByPhase.TryGetValue(phase.Value.PhaseID, out var phaseGroups))
+                        PhaseGroupsByPhase.Add(phase.Value.PhaseID, [phase.Value.PhaseGroupID]);
+                    else
+                        phaseGroups.Add(phase.Value.PhaseGroupID);
+                }
             }), Task.Run(() =>
             {
-                if (PhaseXPhaseGroup != null)
-                    foreach (var phase in PhaseXPhaseGroup)
-                    {
-                        if (!Phases.ContainsKey(phase.Value.PhaseGroupID))
-                            Phases.Add(phase.Value.PhaseGroupID, new List<ushort>() { phase.Value.PhaseID });
-                        else
-                            Phases[phase.Value.PhaseGroupID].Add(phase.Value.PhaseID);
-                    }
-            }), Task.Run(() =>
-            {
-                if (BroadcastTextDuration != null)
-                    foreach (var broadcastTextDuration in BroadcastTextDuration)
-                    {
-                        if (!BroadcastTextDurations.ContainsKey(broadcastTextDuration.Value.BroadcastTextID))
-                            BroadcastTextDurations.Add(broadcastTextDuration.Value.BroadcastTextID, [broadcastTextDuration.Value.Locale]);
-                        else
-                            BroadcastTextDurations[broadcastTextDuration.Value.BroadcastTextID].Add(broadcastTextDuration.Value.Locale);
-                    }
+                if (BroadcastTextDuration == null)
+                    return;
+
+                foreach (var broadcastTextDuration in BroadcastTextDuration)
+                {
+                    if (!BroadcastTextDurations.TryGetValue(broadcastTextDuration.Value.BroadcastTextID, out var durations))
+                        BroadcastTextDurations.Add(broadcastTextDuration.Value.BroadcastTextID, [broadcastTextDuration.Value.Locale]);
+                    else
+                        durations.Add(broadcastTextDuration.Value.Locale);
+                }
             }));
         }
 
         public static HashSet<int> GetPhaseGroups(ICollection<ushort> phases)
         {
-            if (!phases.Any())
+            if (phases.Count == 0)
                 return new HashSet<int>();
 
-            HashSet<int> phaseGroups = new HashSet<int>();
+            var phaseGroups = new HashSet<int>();
 
-            foreach (var phaseGroup in Phases)
-            {
-                foreach (var phase in phaseGroup.Value)
-                {
-                    if (phases.Contains(phase))
-                    {
-                        phaseGroups.Add(phaseGroup.Key);
-                        break;
-                    }
-                }
-            }
+            foreach (var phase in phases)
+                if (PhaseGroupsByPhase.TryGetValue(phase, out var phaseGroupsIds))
+                    phaseGroups.UnionWith(phaseGroupsIds);
 
             return phaseGroups;
         }
@@ -244,12 +242,12 @@ namespace WowPacketParser.DBC
         }
 
         public static readonly Dictionary<uint, string> Zones = new Dictionary<uint, string>();
-        public static readonly Dictionary<int, int> MapSpawnMaskStores = new Dictionary<int, int>();
         public static readonly Dictionary<int, List<int>> MapDifficultyStores = new Dictionary<int, List<int>>();
         public static readonly Dictionary<ushort, string> CriteriaStores = new Dictionary<ushort, string>();
         public static readonly Dictionary<uint, FactionEntry> FactionStores = new Dictionary<uint, FactionEntry>();
         public static readonly Dictionary<Tuple<uint, uint>, SpellEffectEntry> SpellEffectStores = new Dictionary<Tuple<uint, uint>, SpellEffectEntry>();
-        public static readonly Dictionary<int, List<ushort>> Phases = new Dictionary<int, List<ushort>>();
+        public static readonly Dictionary<int, List<ushort>> PhasesByGroup = new Dictionary<int, List<ushort>>();
+        private static readonly Dictionary<ushort, List<int>> PhaseGroupsByPhase = new Dictionary<ushort, List<int>>();
         public static readonly Dictionary<int, HashSet<int>> BroadcastTextDurations = new Dictionary<int, HashSet<int>>();
     }
 }

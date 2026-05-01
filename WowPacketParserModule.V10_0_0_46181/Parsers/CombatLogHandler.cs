@@ -172,6 +172,8 @@ namespace WowPacketParserModule.V10_0_0_46181.Parsers
             packet.ReadInt32("Absorbed");
             packet.ReadInt32("Resisted");
             packet.ReadInt32("ShieldBlock");
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V12_0_1_65818))
+                packet.ReadInt32<SpellId>("ReflectingSpellID");
             if (ClientVersion.AddedInVersion(ClientVersionBuild.V11_2_5_63506))
                 packet.ReadInt32E<AttackerStateFlags>("Flags");
             var worldTextViewersCount = packet.ReadUInt32("WorldTextViewersCount");

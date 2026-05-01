@@ -12,9 +12,9 @@ namespace WowPacketParserModule.V12_0_0_65390.UpdateFields.V12_0_1_65818
     public class WalkInData : IWalkInData
     {
         public int MapID { get; set; }
-        public long Field_8 { get; set; }
-        public WowGuid Field_18 { get; set; }
-        public uint Type { get; set; }
+        public long InstanceID { get; set; }
+        public WowGuid WalkInPartyGUID { get; set; }
+        public uint WalkInInstanceType { get; set; }
     }
 }
 

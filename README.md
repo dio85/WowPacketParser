@@ -7,7 +7,7 @@ WowPacketParser (WPP)
 Usage
 -----
 
-* Compile WowPacketParser using Visual Studio 2022 (with .NET 9.0 SDK) or .NET 9.0 SDK.
+* Compile WowPacketParser using Visual Studio 2026 (with .NET 10.0 SDK) or .NET 10.0 SDK.
   Alternatively you can download compiled binaries from the links [below](#nightly-builds).
 * Edit `WowPacketParser.dll.config` to fit your needs.
 * Drag one or more files (.pkt or .bin) to `WowPacketParser.exe`.
@@ -39,12 +39,12 @@ and `wpp_data_objectnames.sql` has some data to fill the database.
 
 Nightly Builds
 --------------
-.NET 9.0 SDK or .NET 9.0 Runtime is needed!
+.NET 10.0 SDK or .NET 10.0 Runtime is needed!
 
-[Download .NET 9.0 here!](https://dotnet.microsoft.com/download/dotnet/9.0)
+[Download .NET 10.0 here!](https://dotnet.microsoft.com/download/dotnet/10.0)
 
 ##### Windows
-- Visual Studio 2022
+- Visual Studio 2026
   - [Debug](https://nightly.link/TrinityCore/WowPacketParser/workflows/gh-build/master/WPP-windows-latest-Debug.zip)
   - [Release](https://nightly.link/TrinityCore/WowPacketParser/workflows/gh-build/master/WPP-windows-latest-Release.zip)
   
@@ -103,4 +103,4 @@ Copyright information of third party libraries provided through NuGet can be obt
 
 ###### Provided third party libraries:
 
-DBFileReaderLib, 2019-2022 wowdev, located at https://github.com/wowdev/DBCD
+DBFileReaderLib, 2019-2026 wowdev, located at https://github.com/wowdev/DBCD

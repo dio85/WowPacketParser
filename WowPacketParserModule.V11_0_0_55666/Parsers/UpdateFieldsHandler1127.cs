@@ -4156,9 +4156,9 @@ namespace WowPacketParserModule.V11_0_0_55666.UpdateFields.V11_2_7_64632
             var data = new WalkInData();
             packet.ResetBitReader();
             data.MapID = packet.ReadInt32("MapID", indexes);
-            data.Field_8 = packet.ReadInt64("Field_8", indexes);
-            data.Field_18 = packet.ReadPackedGuid128("Field_18", indexes);
-            data.Type = packet.ReadBits("Type", 1, indexes);
+            data.InstanceID = packet.ReadInt64("InstanceID", indexes);
+            data.WalkInPartyGUID = packet.ReadPackedGuid128("WalkInPartyGUID", indexes);
+            data.WalkInInstanceType = packet.ReadBits("WalkInInstanceType", 1, indexes);
             return data;
         }
 
@@ -4167,9 +4167,9 @@ namespace WowPacketParserModule.V11_0_0_55666.UpdateFields.V11_2_7_64632
             var data = new WalkInData();
             packet.ResetBitReader();
             data.MapID = packet.ReadInt32("MapID", indexes);
-            data.Field_8 = packet.ReadInt64("Field_8", indexes);
-            data.Field_18 = packet.ReadPackedGuid128("Field_18", indexes);
-            data.Type = packet.ReadBits("Type", 1, indexes);
+            data.InstanceID = packet.ReadInt64("InstanceID", indexes);
+            data.WalkInPartyGUID = packet.ReadPackedGuid128("WalkInPartyGUID", indexes);
+            data.WalkInInstanceType = packet.ReadBits("WalkInInstanceType", 1, indexes);
             return data;
         }
 
@@ -4177,16 +4177,16 @@ namespace WowPacketParserModule.V11_0_0_55666.UpdateFields.V11_2_7_64632
         {
             var data = new DelveData();
             packet.ResetBitReader();
-            data.Field_0 = packet.ReadInt32("Field_0", indexes);
-            data.Field_8 = packet.ReadUInt64("Field_8", indexes);
+            data.MapID = packet.ReadInt32("MapID", indexes);
+            data.InstanceID = packet.ReadUInt64("InstanceID", indexes);
             data.Field_10 = packet.ReadInt32("Field_10", indexes);
             data.SpellID = packet.ReadInt32("SpellID", indexes);
-            data.Owners = new WowGuid[packet.ReadUInt32()];
-            for (var i = 0; i < data.Owners.Length; ++i)
+            data.PlayersEligibleForRewards = new WowGuid[packet.ReadUInt32()];
+            for (var i = 0; i < data.PlayersEligibleForRewards.Length; ++i)
             {
-                data.Owners[i] = packet.ReadPackedGuid128("Owners", indexes, i);
+                data.PlayersEligibleForRewards[i] = packet.ReadPackedGuid128("PlayersEligibleForRewards", indexes, i);
             }
-            data.Started = packet.ReadBits("Started", 1, indexes);
+            data.RestrictingRewardPlayers = packet.ReadBits("RestrictingRewardPlayers", 1, indexes);
             return data;
         }
 
@@ -4195,16 +4195,16 @@ namespace WowPacketParserModule.V11_0_0_55666.UpdateFields.V11_2_7_64632
             var data = new DelveData();
             packet.ResetBitReader();
             packet.ResetBitReader();
-            data.Field_0 = packet.ReadInt32("Field_0", indexes);
-            data.Field_8 = packet.ReadUInt64("Field_8", indexes);
+            data.MapID = packet.ReadInt32("MapID", indexes);
+            data.InstanceID = packet.ReadUInt64("InstanceID", indexes);
             data.Field_10 = packet.ReadInt32("Field_10", indexes);
             data.SpellID = packet.ReadInt32("SpellID", indexes);
-            data.Owners = new WowGuid[packet.ReadUInt32()];
-            for (var i = 0; i < data.Owners.Length; ++i)
+            data.PlayersEligibleForRewards = new WowGuid[packet.ReadUInt32()];
+            for (var i = 0; i < data.PlayersEligibleForRewards.Length; ++i)
             {
-                data.Owners[i] = packet.ReadPackedGuid128("Owners", indexes, i);
+                data.PlayersEligibleForRewards[i] = packet.ReadPackedGuid128("PlayersEligibleForRewards", indexes, i);
             }
-            data.Started = packet.ReadBits("Started", 1, indexes);
+            data.RestrictingRewardPlayers = packet.ReadBits("RestrictingRewardPlayers", 1, indexes);
             return data;
         }
 
@@ -8106,7 +8106,7 @@ namespace WowPacketParserModule.V11_0_0_55666.UpdateFields.V11_2_7_64632
         {
             var data = new PlayerMirrorHouse();
             packet.ResetBitReader();
-            data.Guid = packet.ReadPackedGuid128("Guid", indexes);
+            data.HouseGUID = packet.ReadPackedGuid128("HouseGUID", indexes);
             data.NeighborhoodGUID = packet.ReadPackedGuid128("NeighborhoodGUID", indexes);
             data.Level = packet.ReadUInt32("Level", indexes);
             data.Favor = packet.ReadUInt32("Favor", indexes);
@@ -8118,7 +8118,7 @@ namespace WowPacketParserModule.V11_0_0_55666.UpdateFields.V11_2_7_64632
         {
             var data = new PlayerMirrorHouse();
             packet.ResetBitReader();
-            data.Guid = packet.ReadPackedGuid128("Guid", indexes);
+            data.HouseGUID = packet.ReadPackedGuid128("HouseGUID", indexes);
             data.NeighborhoodGUID = packet.ReadPackedGuid128("NeighborhoodGUID", indexes);
             data.Level = packet.ReadUInt32("Level", indexes);
             data.Favor = packet.ReadUInt32("Favor", indexes);

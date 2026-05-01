@@ -87,7 +87,7 @@ namespace WowPacketParser.Misc
             var result = true;
 
             if (guid.HasEntry())
-                result = CheckFilter(Utilities.ObjectTypeToStore(guid.GetObjectType()), (int)guid.GetEntry());
+                result = CheckFilter(guid.GetStoreNameType(), (int)guid.GetEntry());
 
             return result;
         }
@@ -97,7 +97,7 @@ namespace WowPacketParser.Misc
             var result = true;
 
             if (guid.GetObjectType() == ObjectType.Player || guid.HasEntry())
-                result = CheckFilter(Utilities.ObjectTypeToStore(guid.GetObjectType()), (int)guid.GetEntry());
+                result = CheckFilter(guid.GetStoreNameType(), (int)guid.GetEntry());
 
             return result;
         }

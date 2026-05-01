@@ -1,4 +1,4 @@
-using DBFileReaderLib.Attributes;
+using DBCD.IO.Attributes;
 
 namespace WowPacketParser.DBC.Structures.CataclysmClassic
 {
@@ -8,7 +8,7 @@ namespace WowPacketParser.DBC.Structures.CataclysmClassic
         [Index(true)]
         public uint ID;
         public ushort PhaseID;
-        [NonInlineRelation(typeof(uint))]
+        [Relation(typeof(uint), true)]
         public int PhaseGroupID;
     }
 }

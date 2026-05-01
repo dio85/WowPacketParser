@@ -13,12 +13,15 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
         {
             CoreParsers.MovementHandler.CurrentMapId = (uint)packet.ReadInt32<MapId>("Map");
             packet.ReadVector4("Position");
-            packet.ReadInt32("Unused901_1");
-            packet.ReadInt32("Unused901_2");
+            packet.ReadInt32("FloorDifficulty");
+            packet.ReadInt32("FloorIndex");
             packet.ReadUInt32("Reason");
             packet.ReadVector3("MovementOffset");
             if (ClientVersion.AddedInVersion(ClientType.TheWarWithin))
                 packet.ReadInt32("Counter");
+
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V12_0_5_67088))
+                packet.ReadUInt64("InstanceID");
 
             packet.AddSniffData(StoreNameType.Map, (int)CoreParsers.MovementHandler.CurrentMapId, "NEW_WORLD");
         }

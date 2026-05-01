@@ -1,4 +1,4 @@
-using DBFileReaderLib.Attributes;
+using DBCD.IO.Attributes;
 
 namespace WowPacketParser.DBC.Structures.TheWarWithin
 {
@@ -8,7 +8,7 @@ namespace WowPacketParser.DBC.Structures.TheWarWithin
         [Index(true)]
         public uint ID;
         public ushort PhaseID;
-        [NonInlineRelation(typeof(uint))]
+        [Relation(typeof(uint), true)]
         public int PhaseGroupID;
     }
 }
