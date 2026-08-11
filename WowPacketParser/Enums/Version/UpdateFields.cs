@@ -1058,6 +1058,19 @@ namespace WowPacketParser.Enums.Version
                 {
                     return ClientVersionBuild.V12_0_5_66741;
                 }
+                case ClientVersionBuild.V12_0_7_67808:
+                case ClientVersionBuild.V12_0_7_68182:
+                case ClientVersionBuild.V12_0_7_68232:
+                case ClientVersionBuild.V12_0_7_68235:
+                case ClientVersionBuild.V12_0_7_68256:
+                case ClientVersionBuild.V12_0_7_68275:
+                case ClientVersionBuild.V12_0_7_68367:
+                case ClientVersionBuild.V12_0_7_68453:
+                case ClientVersionBuild.V12_0_7_68887:
+                case ClientVersionBuild.V12_0_7_68974:
+                {
+                    return ClientVersionBuild.V12_0_7_67808;
+                }
                 case ClientVersionBuild.V1_13_2_31446:
                 case ClientVersionBuild.V1_13_2_31650:
                 case ClientVersionBuild.V1_13_2_31687:
@@ -1327,6 +1340,8 @@ namespace WowPacketParser.Enums.Version
                 case ClientVersionBuild.V2_5_5_66765:
                 case ClientVersionBuild.V2_5_5_67157:
                 case ClientVersionBuild.V2_5_5_67511:
+                case ClientVersionBuild.V2_5_5_67852:
+                case ClientVersionBuild.V2_5_5_68101:
                 {
                     return ClientVersionBuild.V2_5_5_64796;
                 }
@@ -1508,13 +1523,20 @@ namespace WowPacketParser.Enums.Version
                 }
                 case ClientVersionBuild.V5_5_3_64802:
                 case ClientVersionBuild.V5_5_3_64857:
+                case ClientVersionBuild.V5_5_3_65302:
                 case ClientVersionBuild.V5_5_3_65703:
                 case ClientVersionBuild.V5_5_3_65746:
                 case ClientVersionBuild.V5_5_3_65890:
                 case ClientVersionBuild.V5_5_3_65988:
                 case ClientVersionBuild.V5_5_3_66128:
                 case ClientVersionBuild.V5_5_3_66290:
-                    {
+                case ClientVersionBuild.V5_5_3_66382:
+                case ClientVersionBuild.V5_5_3_66509:
+                case ClientVersionBuild.V5_5_3_66565:
+                case ClientVersionBuild.V5_5_3_66839:
+                case ClientVersionBuild.V5_5_3_67158:
+                case ClientVersionBuild.V5_5_3_67509:
+                {
                     return ClientVersionBuild.V5_5_3_64802;
                 }
                 default:
