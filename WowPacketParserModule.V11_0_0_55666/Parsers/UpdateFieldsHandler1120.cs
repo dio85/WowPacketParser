@@ -6214,9 +6214,9 @@ namespace WowPacketParserModule.V11_0_0_55666.UpdateFields.V11_2_0_62213
             return data;
         }
 
-        public static IScaleCurve ReadCreateScaleCurve(Packet packet, params object[] indexes)
+        public static IOverrideCurve ReadCreateScaleCurve(Packet packet, params object[] indexes)
         {
-            var data = new ScaleCurve();
+            var data = new OverrideCurve();
             packet.ResetBitReader();
             data.StartTimeOffset = packet.ReadUInt32("StartTimeOffset", indexes);
             for (var i = 0; i < 2; ++i)
@@ -6228,9 +6228,9 @@ namespace WowPacketParserModule.V11_0_0_55666.UpdateFields.V11_2_0_62213
             return data;
         }
 
-        public static IScaleCurve ReadUpdateScaleCurve(Packet packet, params object[] indexes)
+        public static IOverrideCurve ReadUpdateScaleCurve(Packet packet, params object[] indexes)
         {
-            var data = new ScaleCurve();
+            var data = new OverrideCurve();
             packet.ResetBitReader();
             var rawChangesMask = new int[1];
             rawChangesMask[0] = (int)packet.ReadBits(7);
@@ -6338,7 +6338,7 @@ namespace WowPacketParserModule.V11_0_0_55666.UpdateFields.V11_2_0_62213
             var data = new AreaTriggerSplineCalculator();
             packet.ResetBitReader();
             data.Points.Resize(packet.ReadBits(16));
-            data.Catmullrom = packet.ReadBit("Catmullrom", indexes);
+            data.Linear = packet.ReadBit("Linear", indexes);
             for (var i = 0; i < data.Points.Count; ++i)
             {
                 data.Points[i] = packet.ReadVector3("Points", indexes, i);
@@ -6358,7 +6358,7 @@ namespace WowPacketParserModule.V11_0_0_55666.UpdateFields.V11_2_0_62213
             {
                 if (changesMask[1])
                 {
-                    data.Catmullrom = packet.ReadBit("Catmullrom", indexes);
+                    data.Linear = packet.ReadBit("Linear", indexes);
                 }
                 if (changesMask[2])
                 {
@@ -6729,8 +6729,10 @@ namespace WowPacketParserModule.V11_0_0_55666.UpdateFields.V11_2_0_62213
         {
             var data = new AreaTriggerBoundedPlane();
             packet.ResetBitReader();
-            data.Extents = packet.ReadVector2("Extents", indexes);
-            data.ExtentsTarget = packet.ReadVector2("ExtentsTarget", indexes);
+            data.ExtentsY = packet.ReadSingle("ExtentsY", indexes);
+            data.ExtentsZ = packet.ReadSingle("ExtentsZ", indexes);
+            data.ExtentsTargetY = packet.ReadSingle("ExtentsTargetY", indexes);
+            data.ExtentsTargetZ = packet.ReadSingle("ExtentsTargetZ", indexes);
             return data;
         }
 
@@ -6739,7 +6741,7 @@ namespace WowPacketParserModule.V11_0_0_55666.UpdateFields.V11_2_0_62213
             var data = new AreaTriggerBoundedPlane();
             packet.ResetBitReader();
             var rawChangesMask = new int[1];
-            rawChangesMask[0] = (int)packet.ReadBits(3);
+            rawChangesMask[0] = (int)packet.ReadBits(5);
             var changesMask = new BitArray(rawChangesMask);
 
             packet.ResetBitReader();
@@ -6747,11 +6749,19 @@ namespace WowPacketParserModule.V11_0_0_55666.UpdateFields.V11_2_0_62213
             {
                 if (changesMask[1])
                 {
-                    data.Extents = packet.ReadVector2("Extents", indexes);
+                    data.ExtentsY = packet.ReadSingle("ExtentsY", indexes);
                 }
                 if (changesMask[2])
                 {
-                    data.ExtentsTarget = packet.ReadVector2("ExtentsTarget", indexes);
+                    data.ExtentsZ = packet.ReadSingle("ExtentsZ", indexes);
+                }
+                if (changesMask[3])
+                {
+                    data.ExtentsTargetY = packet.ReadSingle("ExtentsTargetY", indexes);
+                }
+                if (changesMask[4])
+                {
+                    data.ExtentsTargetZ = packet.ReadSingle("ExtentsTargetZ", indexes);
                 }
             }
             return data;
