@@ -719,6 +719,7 @@ namespace WowPacketParser.Enums
         V12_1_0_69497 = 69497,
         V12_1_0_69587 = 69587,
         V12_1_0_69814 = 69814,
+        V12_1_0_69875 = 69875,
 
         // Classic
         V1_13_2_31446 = 31446,
@@ -976,6 +977,7 @@ namespace WowPacketParser.Enums
         V2_5_6_68941 = 68941, // live
         V2_5_6_69110 = 69110, // live and ptr
         V2_5_6_69546 = 69546, // live
+        V2_5_6_69795 = 69795, // live
 
         V3_4_0_44832 = 44832, // ptr / beta
         V3_4_0_45166 = 45166, // ptr / beta
